@@ -1,0 +1,18 @@
+[
+  {
+    "ticketId": "VISA-2026-TEST-90412",
+    "fullName": "Li Wei (Chief Project Engineer)",
+    "email": "wei.li@crrc-middleeast.com",
+    "passportNumber": "E88491024",
+    "nationality": "Chinese",
+    "origin": "Beijing Capital International (PEK)",
+    "destination": "Basra International Airport (BSR)",
+    "travelDate": "2026-06-15",
+    "serviceType": "EXECUTIVE_COMMERCIAL_VISA",
+    "notes": "Expedited consular processing for railway traction substation calibration in Umm Qasr corridor.",
+    "status": "APPROVED",
+    "priority": "HIGH",
+    "contactPhone": "+86 139 1022 8844",
+    "assignedOfficer": "Baghdad Consular Special Desk"
+  }
+]

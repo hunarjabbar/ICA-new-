@@ -1,0 +1,36 @@
+[
+  {
+    "id": "test-media-basra-deepwater-terminal-drone",
+    "slug": "test-media-basra-deepwater-terminal-drone",
+    "title": {
+      "en": "Basra Deep-Water Terminal 4K Drone Engineering Survey",
+      "ar": "مسح هندسي جوي بدقة 4K لأرصفة مياه البصرة العميقة",
+      "zh": "巴士拉深水码头4K高清无人机工程纪实航拍",
+      "ckb": "وێنەگرتنی ئاسمانی بە کوالیتی 4K بۆ بەندەری قووڵی بەسرە"
+    },
+    "type": "video",
+    "category": "infrastructure",
+    "url": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=1200",
+    "duration": "6:14",
+    "publishDate": "2026-05-01",
+    "status": "PUBLISHED",
+    "sourceVertical": "Media Hub"
+  },
+  {
+    "id": "test-media-yuan-dinar-podcast-ep12",
+    "slug": "test-media-yuan-dinar-podcast-ep12",
+    "title": {
+      "en": "Podcast Ep. 12: Structuring Non-Dollar Trade Finance for Mesopotamian Imports",
+      "ar": "بودكاست حلقة 12: هيكلة التمويل التجاري غير الدولاري للواردات العراقية",
+      "zh": "双边播客第12期：美索不达米亚进口非美元贸易融资架构解析",
+      "ckb": "پۆدکاست ئەڵقەی ١٢: دارایی بازرگانی دەرەوەی دۆلار بۆ هاوردەی عێراق"
+    },
+    "type": "podcast",
+    "category": "finance",
+    "url": "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=1200",
+    "duration": "34:20",
+    "publishDate": "2026-05-03",
+    "status": "PUBLISHED",
+    "sourceVertical": "Media Hub"
+  }
+]

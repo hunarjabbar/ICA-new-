@@ -1,0 +1,65 @@
+{
+  "categories": [
+    {
+      "slug": "macro-economy",
+      "name": "Macro Economy",
+      "nameEn": "Macro Economy",
+      "nameAr": "الاقتصاد الكلي",
+      "nameZh": "宏观经济"
+    },
+    {
+      "slug": "infrastructure",
+      "name": "Strategic Infrastructure",
+      "nameEn": "Strategic Infrastructure",
+      "nameAr": "البنية التحتية الاستراتيجية",
+      "nameZh": "重大基础设施"
+    },
+    {
+      "slug": "sovereign-diplomacy",
+      "name": "Sovereign Diplomacy",
+      "nameEn": "Sovereign Diplomacy",
+      "nameAr": "الدبلوماسية السيادية",
+      "nameZh": "主权外交"
+    },
+    {
+      "slug": "energy-petroleum",
+      "name": "Energy & Petrochemicals",
+      "nameEn": "Energy & Petrochemicals",
+      "nameAr": "الطاقة والبتروكيماويات",
+      "nameZh": "能源化工"
+    },
+    {
+      "slug": "cultural-exchanges",
+      "name": "Civilizational & Cultural",
+      "nameEn": "Civilizational & Cultural",
+      "nameAr": "التبادل الحضاري والثقافي",
+      "nameZh": "文明对话与人文"
+    }
+  ],
+  "tags": [
+    {
+      "name": "e-CNY"
+    },
+    {
+      "name": "mBridge"
+    },
+    {
+      "name": "Grand Faw"
+    },
+    {
+      "name": "Maritime Silk Road"
+    },
+    {
+      "name": "Basrah Heavy"
+    },
+    {
+      "name": "CIPS"
+    },
+    {
+      "name": "BRI Logistics"
+    },
+    {
+      "name": "Solar Megawatt"
+    }
+  ]
+}

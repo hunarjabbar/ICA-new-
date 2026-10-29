@@ -1,0 +1,21 @@
+[
+  {
+    "pair": "IQD_ECNY",
+    "baseRate": 188.5,
+    "bidRate": 187.8,
+    "askRate": 189.2,
+    "retailFeePercent": 0.75,
+    "businessFeePercent": 0.35,
+    "minimumRetailIqd": 25000,
+    "minimumBusinessIqd": 1000000,
+    "change24h": 0.42,
+    "high24h": 189.85,
+    "low24h": 187.1,
+    "volume24h": "¥ 42.8M / د.ع 8.06B",
+    "ecnyReservePool": 150000000,
+    "iqdReservePool": 28275000000,
+    "mbridgeStatus": "ACTIVE",
+    "cipsGatewayStatus": "ONLINE",
+    "cbiClearingStatus": "SYNCHRONIZED"
+  }
+]

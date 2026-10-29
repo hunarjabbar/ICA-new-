@@ -1,0 +1,218 @@
+[
+  {
+    "code": "CISE-DOS-2026-7824",
+    "serviceId": "clearing-rail",
+    "serviceName": {
+      "en": "clearing-rail",
+      "ar": "clearing-rail",
+      "zh": "clearing-rail",
+      "ckb": "clearing-rail"
+    },
+    "clientName": "Babylon Renewable Energy Corp",
+    "applicantEmail": "projects@babylon-solar.iq",
+    "companyEntity": "Babylon Renewable Energy Corp",
+    "jurisdiction": "Iraq / China Bilateral",
+    "estimatedFeeUSD": 4250,
+    "estimatedFeeIQD": 5567500,
+    "estimatedFeeRMB": 30600,
+    "tier": "Institutional Priority",
+    "slaDays": 3,
+    "stage": "COMPLIANCE_REVIEW",
+    "stages": [
+      {
+        "name": "Submission & Dossier Verification",
+        "date": "2026-10-17",
+        "done": true,
+        "note": "Dossier credentials and trade references recorded."
+      },
+      {
+        "name": "Compliance & Anti-Money Laundering Screening",
+        "date": "In Progress",
+        "done": false,
+        "note": "Conducting regulatory and bilateral bank clearance."
+      },
+      {
+        "name": "Interbank Liquidity & Pool Allocation",
+        "date": "Pending",
+        "done": false,
+        "note": "Awaiting compliance greenlight for liquidity routing."
+      },
+      {
+        "name": "Sovereign Clearing Authorization",
+        "date": "Pending",
+        "done": false,
+        "note": "Awaiting final bilateral signatory seal."
+      },
+      {
+        "name": "Settlement Dispatched & Credited",
+        "date": "Pending",
+        "done": false,
+        "note": "Dispatch and cryptographic ledger receipt."
+      }
+    ],
+    "submittedAt": "2026-10-17T08:57:51.091Z",
+    "assignedOfficer": "Directorate of Bilateral Services (Active Review)"
+  },
+  {
+    "code": "CISE-DOS-2026-1049",
+    "serviceId": "clearing-rail",
+    "serviceName": {
+      "en": "Sovereign Bilateral Clearing Rail (IQD ⇄ RMB)",
+      "ar": "مسار المقاصة الثنائية السيادية (دينار عراقي ⇄ يوان صيني)",
+      "zh": "中伊双边本币清算直通通道 (IQD ⇄ RMB)",
+      "ckb": "هێڵی پاکتاوی دوولایەنەی دراو (دینار ⇄ یوان)"
+    },
+    "clientName": "Al-Mansour Heavy Industrial Equipment Ltd.",
+    "applicantEmail": "trade@almansour-machinery.iq",
+    "companyEntity": "Al-Mansour Group LLC",
+    "jurisdiction": "Baghdad / Shanghai",
+    "estimatedFeeUSD": 3850,
+    "estimatedFeeIQD": 5043500,
+    "estimatedFeeRMB": 27720,
+    "tier": "Priority Sovereign Clearing",
+    "slaDays": 2,
+    "stage": "INTERBANK_VERIFIED",
+    "stages": [
+      {
+        "name": "Submission & Dossier Verification",
+        "date": "2026-04-08",
+        "done": true,
+        "note": "Documentary proof and trade contract validated."
+      },
+      {
+        "name": "Compliance & Anti-Money Laundering Screening",
+        "date": "2026-04-09",
+        "done": true,
+        "note": "Cleared international sanction screening and CIPS checks."
+      },
+      {
+        "name": "Interbank Liquidity & Pool Allocation",
+        "date": "2026-04-11",
+        "done": true,
+        "note": "Allocated 14.5M RMB liquidity pool at CBI-PBOC swap window."
+      },
+      {
+        "name": "Sovereign Clearing Authorization",
+        "date": "Pending",
+        "done": false,
+        "note": "Awaiting final settlement release from Central Clearing Bureau."
+      },
+      {
+        "name": "Settlement Dispatched & Credited",
+        "date": "Pending",
+        "done": false,
+        "note": "SWIFT/mBridge dispatch receipt issuance."
+      }
+    ],
+    "submittedAt": "2026-04-08T10:00:00Z",
+    "assignedOfficer": "Dr. Liu Jin (Senior Bilateral Economist)"
+  },
+  {
+    "code": "CISE-DOS-2026-2184",
+    "serviceId": "sinosure-coverage",
+    "serviceName": {
+      "en": "Sinosure Strategic Risk Mitigation & Underwriting",
+      "ar": "تأمين ودرء المخاطر الاستراتيجية مع سينوشور",
+      "zh": "中国信保买方信贷与主权信用保险对接",
+      "ckb": "بیمەی مەترسی ستراتیژی لەگەڵ سینۆشۆر"
+    },
+    "clientName": "Zagros Petrochemical Logistics Consortium",
+    "applicantEmail": "corporate@zagros-logistics.krd",
+    "companyEntity": "Zagros Infrastructure Holdings",
+    "jurisdiction": "Erbil / Beijing",
+    "estimatedFeeUSD": 6200,
+    "estimatedFeeIQD": 8122000,
+    "estimatedFeeRMB": 44640,
+    "tier": "Full Sovereign Underwriting",
+    "slaDays": 5,
+    "stage": "COMPLIANCE_REVIEW",
+    "stages": [
+      {
+        "name": "Submission & Dossier Verification",
+        "date": "2026-04-12",
+        "done": true,
+        "note": "Balance sheet, audit report and bill of lading registered."
+      },
+      {
+        "name": "Compliance & Anti-Money Laundering Screening",
+        "date": "2026-04-14",
+        "done": true,
+        "note": "Underwriter review of project financial projections."
+      },
+      {
+        "name": "Interbank Liquidity & Pool Allocation",
+        "date": "Pending",
+        "done": false,
+        "note": "Risk scoring and premium index generation."
+      },
+      {
+        "name": "Sovereign Clearing Authorization",
+        "date": "Pending",
+        "done": false,
+        "note": "Sinosure Head Office policy endorsement."
+      },
+      {
+        "name": "Settlement Dispatched & Credited",
+        "date": "Pending",
+        "done": false,
+        "note": "Issuance of Bilateral Indemnity Certificate."
+      }
+    ],
+    "submittedAt": "2026-04-12T15:30:00Z",
+    "assignedOfficer": "Counselor H. Barzanji (Risk Director)"
+  },
+  {
+    "code": "CISE-DOS-2026-3902",
+    "serviceId": "visa-consular",
+    "serviceName": {
+      "en": "Bilateral Diplomatic & Business Fast-Track Visa Centre",
+      "ar": "مركز التأشيرات الدبلوماسية والتجارية السريعة",
+      "zh": "中伊商贸与外交代表团加急签证服务中心",
+      "ckb": "ناوەندی ڤیزای دیپلۆماسی و بازرگانی خێرا"
+    },
+    "clientName": "Shaanxi Electric Power Delegation (8 Engineers)",
+    "applicantEmail": "delegation@sep-global.cn",
+    "companyEntity": "Shaanxi Electric Power Construction Co.",
+    "jurisdiction": "Xi'an / Basra",
+    "estimatedFeeUSD": 1440,
+    "estimatedFeeIQD": 1886400,
+    "estimatedFeeRMB": 10368,
+    "tier": "Fast-Track Consular Courier",
+    "slaDays": 3,
+    "stage": "SOVEREIGN_APPROVED",
+    "stages": [
+      {
+        "name": "Submission & Dossier Verification",
+        "date": "2026-04-13",
+        "done": true,
+        "note": "Passport biometrics and ministry invitation letters validated."
+      },
+      {
+        "name": "Compliance & Anti-Money Laundering Screening",
+        "date": "2026-04-14",
+        "done": true,
+        "note": "Security vetting completed by Iraqi Consular Affairs Bureau."
+      },
+      {
+        "name": "Interbank Liquidity & Pool Allocation",
+        "date": "2026-04-15",
+        "done": true,
+        "note": "Consular statutory fees disbursed."
+      },
+      {
+        "name": "Sovereign Clearing Authorization",
+        "date": "2026-04-16",
+        "done": true,
+        "note": "Biometric Diplomatic E-Visas stamped and approved."
+      },
+      {
+        "name": "Settlement Dispatched & Credited",
+        "date": "Pending",
+        "done": false,
+        "note": "Courier dispatching to Baghdad International Airport Protocol."
+      }
+    ],
+    "submittedAt": "2026-04-13T08:15:00Z",
+    "assignedOfficer": "Attaché Tariq Nadir (Consular Fast-Track)"
+  }
+]

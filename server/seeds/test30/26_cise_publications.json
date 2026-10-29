@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "test-pub-dedollarization-mesopotamian-crude-2026",
+    "type": "POLICY_BRIEF",
+    "publicationType": "Policy Brief",
+    "titleEn": "Mechanisms for Pricing Iraqi Crude in Petroyuan: Feasibility and Risk Hedging",
+    "titleAr": "آليات تسعير النفط الخام العراقي بالبترويوان: الجدوى والتحوط من المخاطر",
+    "titleZh": "伊拉克原油采用石油人民币直接挂牌定价结算的机制设计与风险对冲策略研究",
+    "titleCkb": "میکانیزمی دیاریکردنی نرخی نەوتی عێراق بە پترۆیوان و ئەگەری سەرکەوتنی",
+    "excerptEn": "Monograph detailing how pricing 30% of Basrah Heavy in digital RMB establishes sustainable capital purchasing parity.",
+    "excerptAr": "دراسة استراتيجية تفصل كيفية تسعير 30% من خام البصرة الثقيل باليوان الرقمي لتحقيق تكافؤ شرائي مستدام.",
+    "excerptZh": "深入论证将首期30%巴士拉重质原油对华出口采用数字人民币挂牌结算，对平抑中东汇率震荡与锁定基建采购成本的显著实效。",
+    "excerptCkb": "شیکارییەکی زانستی لەسەر فرۆشتنی ٣٠٪ی نەوتی بەسرە بە دراوی یوان بۆ بەدەستهێنانی کەرەستەی پیشەسازی بە بێ کێشە.",
+    "contentEn": "<p>The integration of the Shanghai International Energy Exchange (INE) contracts with Iraq's State Oil Marketing Organization (SOMO) auction mechanism offers hedge security against US dollar liquidity cycles.</p>",
+    "contentAr": "<p>يوفر تكامل عقود بورصة شنغهاي الدولية للطاقة مع آلية مزادات شركة تسويق النفط العراقية (سومو) حماية وتحوطاً ضد تقلبات السيولة الدولارية.</p>",
+    "contentZh": "<p>通过将上海国际能源交易中心（INE）原油期货标准仓单体系与伊拉克国家石油营销组织（SOMO）现货招标机制相衔接，双方能够有效规避离岸美元流动性收缩周期引发的被动贬值压力。</p>",
+    "contentCkb": "<p>بەستنەوەی بۆرسەی وزەی شەنگەهای لەگەڵ کۆمپانیای سۆمۆ سوودێکی زۆری دەبێت بۆ پاراستنی بەهای نەوتی عێراق لە گۆڕانکارییەکانی بازاڕ.</p>",
+    "imageUrl": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200",
+    "authorName": "Dr. Haidar Al-Lami & Chen Jining",
+    "topics": "[\"Petroyuan\",\"SOMO\",\"INE Shanghai\",\"Basrah Heavy\"]",
+    "region": "BILATERAL",
+    "doi": "10.2026/cise.pb.0841",
+    "pdfUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    "status": "PUBLISHED"
+  }
+]

@@ -1,0 +1,24 @@
+[
+  {
+    "slug": "test-pillar-bilateral-macroeconomics-sovereign-finance",
+    "titleEn": "Macroeconomics, CIPS Integration & Sovereign Finance",
+    "titleAr": "الاقتصاد الكلي وتكامل CIPS والتمويل السيادي",
+    "titleZh": "宏观经济、CIPS系统接入与双边主权金融创新",
+    "titleCkb": "ئابووری گەورە، سیستەمی CIPS و دارایی سیادی",
+    "descriptionEn": "Focusing on local-currency settlement corridors, reserve risk hedging, and central bank digital currency infrastructure across the Silk Road.",
+    "descriptionAr": "التركيز على ممرات التسوية بالعملات المحلية والتحوط لمخاطر الاحتياطيات والبنية التحتية للعملات الرقمية للبنوك المركزية.",
+    "descriptionZh": "专注文明丝路沿线本币直接清算通道构建、主权外汇储备对冲防范机制及央行数字货币（CBDC）金融基础设施研发应用。",
+    "descriptionCkb": "تەرکیز لەسەر ئاڵوگۆڕی دارایی بە دراوی خۆجێیی و سیستەمە داراییە پێشکەوتووەکان دەکات.",
+    "leadFellowEn": "Dr. Haidar Al-Lami (Visiting Distinguished Fellow)",
+    "leadFellowAr": "د. حيدر اللامي (زميل متميز زائر)",
+    "leadFellowZh": "海德尔·拉米 博士（特聘客座高级研究员）",
+    "leadFellowCkb": "د. حەیدەر ئەللامی (توێژەری باڵای میوان)",
+    "metricLabelEn": "Published Sovereign Briefs",
+    "metricLabelAr": "أوراق سيادية منشورة",
+    "metricLabelZh": "已向两国政府提交主权内参白皮书",
+    "metricLabelCkb": "توێژینەوەی بڵاوکراوە",
+    "metricValue": "48 Monographs",
+    "topics": "[\"CIPS\",\"mBridge\",\"Sovereign Debt\",\"e-CNY\",\"Bilateral Reserves\"]",
+    "status": "PUBLISHED"
+  }
+]

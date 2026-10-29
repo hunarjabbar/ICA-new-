@@ -1,0 +1,1080 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  password              String    @default("")
+  name                  String
+  role                  String    @default("AUTHOR")
+  digitalId             String?   @unique
+  memberCode            String?   @unique
+  department            String?   @default("Editorial & Intelligence")
+  title                 String?   @default("Strategic Analyst")
+  clearanceLevel        String?   @default("LEVEL-2")
+  badgeStatus           String?   @default("ACTIVE")
+  nationality           String?   @default("Iraqi / Chinese")
+  passportOrIdNumber    String?   @default("IQ-2026-998821")
+  asaishCode            String?   @unique
+  iraqiInfoCard         String?
+  addressHouseNo        String?   @default("14")
+  addressStreetNo       String?   @default("Al-Karrada St 62")
+  addressDistrictName   String?   @default("Al-Karrada")
+  addressDistrictNumber String?   @default("902")
+  phoneNumber           String?   @default("+964 780 000 0000")
+  dateOfBirth           String?   @default("1985-06-15")
+  emergencyContact      String?   @default("Baghdad HQ Security Desk")
+  credentialIssuedDate  DateTime? @default(now())
+  credentialExpiryDate  DateTime?
+  renewalCount          Int       @default(0)
+  lastRenewedAt         DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  stripeCustomerId      String?   @unique
+  subscriptionStatus    String    @default("INACTIVE")
+  subscriptionPlan      String?
+  subscriptionEndDate   DateTime?
+  articles              Article[]
+  studies               Study[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  name     String
+  nameEn   String
+  nameAr   String
+  nameZh   String
+  articles Article[]
+}
+
+model Article {
+  id           String               @id @default(cuid())
+  slug         String               @unique
+  status       String               @default("DRAFT")
+  imageUrl     String?
+  authorId     String
+  categoryId   String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  category     Category             @relation(fields: [categoryId], references: [id])
+  author       User                 @relation(fields: [authorId], references: [id])
+  translations ArticleTranslation[]
+  tags         Tag[]                @relation("ArticleToTag")
+}
+
+model ArticleTranslation {
+  id        String  @id @default(cuid())
+  articleId String
+  lang      String
+  title     String
+  excerpt   String
+  content   String
+  seoTitle  String?
+  seoDesc   String?
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, lang])
+}
+
+model Tag {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  articles Article[] @relation("ArticleToTag")
+}
+
+model MarketData {
+  id            String   @id @default(cuid())
+  symbol        String   @unique
+  name          String
+  nameZh        String   @default("")
+  nameAr        String   @default("")
+  category      String   @default("INDEX")
+  price         Float
+  change        Float
+  changePercent Float
+  volume        String   @default("1.2M")
+  high          Float    @default(0.0)
+  low           Float    @default(0.0)
+  open          Float    @default(0.0)
+  currency      String   @default("USD")
+  marketCap     String   @default("-")
+  peRatio       Float    @default(0.0)
+  updatedAt     DateTime @updatedAt
+}
+
+model LiveEvent {
+  id         String       @id @default(uuid())
+  slug       String       @unique
+  isActive   Boolean      @default(true)
+  titleEn    String
+  titleAr    String
+  titleZh    String
+  titleCkb   String       @default("")
+  summaryEn  String?
+  summaryAr  String?
+  summaryZh  String?
+  summaryCkb String?
+  videoUrl   String?
+  region     String       @default("BILATERAL")
+  category   String       @default("NEWS")
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  updates    LiveUpdate[]
+}
+
+model LiveUpdate {
+  id          String    @id @default(uuid())
+  eventId     String
+  contentEn   String
+  contentAr   String
+  contentZh   String
+  contentCkb  String    @default("")
+  isImportant Boolean   @default(false)
+  authorName  String    @default("Iraqi-Chinese Agency Live Desk")
+  createdAt   DateTime  @default(now())
+  event       LiveEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model Study {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  titleEn    String
+  titleAr    String
+  titleZh    String
+  titleCkb   String   @default("")
+  excerptEn  String
+  excerptAr  String
+  excerptZh  String
+  excerptCkb String   @default("")
+  contentEn  String
+  contentAr  String
+  contentZh  String
+  contentCkb String   @default("")
+  imageUrl   String?
+  isPrivate  Boolean  @default(false)
+  authorId   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  author     User     @relation(fields: [authorId], references: [id])
+}
+
+model PartnershipApplication {
+  id                    String   @id @default(cuid())
+  fullName              String
+  email                 String
+  company               String
+  role                  String
+  bio                   String
+  fileUrl               String?
+  hash                  String   @unique
+  bureau                String
+  status                String   @default("PENDING")
+  nationality           String?  @default("Iraqi / Chinese")
+  passportOrIdNumber    String?  @default("")
+  asaishCode            String?  @unique
+  iraqiInfoCard         String?  @default("")
+  addressHouseNo        String?  @default("")
+  addressStreetNo       String?  @default("")
+  addressDistrictName   String?  @default("")
+  addressDistrictNumber String?  @default("")
+  phoneNumber           String?  @default("")
+  dateOfBirth           String?  @default("")
+  emergencyContact      String?  @default("")
+  createdAt             DateTime @default(now())
+}
+
+model TelexDispatch {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String
+  bureau    String
+  message   String
+  telexRef  String   @unique
+  status    String   @default("UNREAD")
+  createdAt DateTime @default(now())
+}
+
+model Book {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  titleEn        String
+  titleAr        String   @default("")
+  titleZh        String   @default("")
+  titleCkb       String   @default("")
+  authorEn       String
+  authorAr       String   @default("")
+  authorZh       String   @default("")
+  authorCkb      String   @default("")
+  descriptionEn  String
+  descriptionAr  String   @default("")
+  descriptionZh  String   @default("")
+  descriptionCkb String   @default("")
+  coverUrl       String
+  category       String
+  region         String
+  rating         Float    @default(4.8)
+  pages          Int      @default(320)
+  year           Int      @default(2023)
+  publisher      String   @default("Iraqi-Chinese Agency Academic Press")
+  isbn           String?
+  purchaseUrl    String?
+  isTrending     Boolean  @default(true)
+  isFeatured     Boolean  @default(false)
+  downloads      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model TourismSpot {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  titleEn         String
+  titleAr         String   @default("")
+  titleZh         String   @default("")
+  titleCkb        String   @default("")
+  city            String   @default("Erbil")
+  region          String
+  category        String
+  descriptionEn   String
+  descriptionAr   String   @default("")
+  descriptionZh   String   @default("")
+  descriptionCkb  String   @default("")
+  imageUrl        String
+  galleryUrls     String   @default("[]")
+  bestTimeToVisit String   @default("Spring & Autumn")
+  visaPolicy      String   @default("Visa on Arrival / E-Visa available")
+  flightInfo      String   @default("Direct and transfer flights connecting China, Baghdad, and Erbil")
+  rating          Float    @default(4.9)
+  estimatedCost   String   @default("$800 - $1,500")
+  isFeatured      Boolean  @default(true)
+  isTrending      Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model WomenFeature {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  nameEn         String
+  nameAr         String   @default("")
+  nameZh         String   @default("")
+  nameCkb        String   @default("")
+  titleEn        String
+  titleAr        String   @default("")
+  titleZh        String   @default("")
+  titleCkb       String   @default("")
+  region         String
+  category       String
+  summaryEn      String
+  summaryAr      String   @default("")
+  summaryZh      String   @default("")
+  summaryCkb     String   @default("")
+  bioEn          String   @default("")
+  bioAr          String   @default("")
+  bioZh          String   @default("")
+  bioCkb         String   @default("")
+  imageUrl       String
+  organization   String   @default("Sino-Iraqi Women Empowerment Initiative")
+  publicationUrl String?
+  isFeatured     Boolean  @default(true)
+  isTrending     Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model VisaFlight {
+  id                 String   @id @default(cuid())
+  slug               String   @unique
+  titleEn            String
+  titleAr            String   @default("")
+  titleZh            String   @default("")
+  titleCkb           String   @default("")
+  serviceType        String
+  originRegion       String
+  destinationRegion  String
+  summaryEn          String
+  summaryAr          String   @default("")
+  summaryZh          String   @default("")
+  summaryCkb         String   @default("")
+  detailsEn          String   @default("")
+  detailsAr          String   @default("")
+  detailsZh          String   @default("")
+  detailsCkb         String   @default("")
+  airlineOrAuthority String   @default("Consular Affairs & Civil Aviation Authority")
+  processingTime     String   @default("24 - 48 Hours / Direct Flight")
+  feeOrCost          String   @default("Consular Standard Fee")
+  imageUrl           String
+  officialLink       String?
+  isFeatured         Boolean  @default(true)
+  isTrending         Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Podcast {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  titleEn        String
+  titleAr        String   @default("")
+  titleZh        String   @default("")
+  titleCkb       String   @default("")
+  descriptionEn  String
+  descriptionAr  String   @default("")
+  descriptionZh  String   @default("")
+  descriptionCkb String   @default("")
+  audioUrl       String
+  coverUrl       String
+  host           String   @default("Iraqi-Chinese Agency Podcast Network")
+  guestName      String?
+  guestRole      String?
+  publicationUrl String?
+  category       String
+  region         String
+  duration       String   @default("00:00")
+  isFeatured     Boolean  @default(false)
+  isTrending     Boolean  @default(false)
+  publishedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SystemAnnouncement {
+  id         String   @id @default(cuid())
+  contentEn  String
+  contentAr  String
+  contentZh  String
+  contentCkb String
+  isActive   Boolean  @default(true)
+  type       String   @default("INFO")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model VisaFlightInquiry {
+  id              String   @id @default(cuid())
+  ticketId        String   @unique
+  fullName        String
+  email           String
+  passportNumber  String
+  nationality     String?  @default("Iraqi / Chinese")
+  origin          String
+  destination     String
+  travelDate      String?  @default("")
+  serviceType     String   @default("VISA_ASSISTANCE")
+  notes           String?  @default("")
+  status          String   @default("PENDING")
+  priority        String   @default("STANDARD")
+  contactPhone    String?  @default("")
+  assignedOfficer String?  @default("Consular Desk")
+  adminNotes      String?  @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Partner {
+  id             String   @id @default(cuid())
+  name           String
+  logoUrl        String
+  websiteUrl     String?
+  descriptionEn  String
+  descriptionAr  String   @default("")
+  descriptionZh  String   @default("")
+  descriptionCkb String   @default("")
+  isActive       Boolean  @default(true)
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BusinessOpportunity {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  titleEn         String
+  titleAr         String   @default("")
+  titleZh         String   @default("")
+  titleCkb        String   @default("")
+  summaryEn       String   @default("")
+  summaryAr       String   @default("")
+  summaryZh       String   @default("")
+  summaryCkb      String   @default("")
+  contentEn       String   @default("")
+  contentAr       String   @default("")
+  contentZh       String   @default("")
+  contentCkb      String   @default("")
+  category        String   @default("INVESTMENT")
+  sector          String   @default("")
+  investmentValue String   @default("")
+  location        String   @default("")
+  coverImage      String   @default("")
+  featured        Boolean  @default(false)
+  order           Int      @default(0)
+  status          String   @default("OPEN")
+  contactEmail    String?  @default("business@iraqi-chineseagency.com")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SourcingInquiry {
+  id              String   @id @default(cuid())
+  ticketId        String   @unique
+  fullName        String
+  email           String
+  company         String
+  inquiryType     String   @default("PRODUCT_SOURCING")
+  targetMarket    String   @default("CHINA")
+  budget          String   @default("")
+  message         String
+  status          String   @default("PENDING")
+  assignedOfficer String?  @default("Sourcing Desk")
+  adminNotes      String?  @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SourcingPillar {
+  id                            String   @id @default(cuid())
+  slug                          String   @unique
+  serviceCode                   String   @default("PRODUCT_SOURCING")
+  iconName                      String   @default("Factory")
+  order                         Int      @default(0)
+  isActive                      Boolean  @default(true)
+  titleEn                       String
+  titleAr                       String   @default("")
+  titleZh                       String   @default("")
+  titleCkb                      String   @default("")
+  tagEn                         String   @default("")
+  tagAr                         String   @default("")
+  tagZh                         String   @default("")
+  tagCkb                        String   @default("")
+  updateBadgeEn                 String   @default("")
+  updateBadgeAr                 String   @default("")
+  updateBadgeZh                 String   @default("")
+  updateBadgeCkb                String   @default("")
+  descEn                        String   @default("")
+  descAr                        String   @default("")
+  descZh                        String   @default("")
+  descCkb                       String   @default("")
+  leadSummaryEn                 String   @default("")
+  leadSummaryAr                 String   @default("")
+  leadSummaryZh                 String   @default("")
+  leadSummaryCkb                String   @default("")
+  wordCount                     Int      @default(320)
+  readTimeEn                    String   @default("2 Min Read")
+  readTimeAr                    String   @default("قراءة في دقيقتين")
+  readTimeZh                    String   @default("2 分钟精读")
+  readTimeCkb                   String   @default("٢ خولەک خوێندنەوە")
+  metricsJson                   String   @default("[]")
+  comprehensiveSpecificationEn  String   @default("[]")
+  comprehensiveSpecificationAr  String   @default("[]")
+  comprehensiveSpecificationZh  String   @default("[]")
+  comprehensiveSpecificationCkb String   @default("[]")
+  updates2026En                 String   @default("[]")
+  updates2026Ar                 String   @default("[]")
+  updates2026Zh                 String   @default("[]")
+  updates2026Ckb                String   @default("[]")
+  deliverablesEn                String   @default("[]")
+  deliverablesAr                String   @default("[]")
+  deliverablesZh                String   @default("[]")
+  deliverablesCkb               String   @default("[]")
+  standardsJson                 String   @default("[]")
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+}
+
+model PaymentOrder {
+  id             String @id @default(cuid())
+  reference      String @unique
+  orderType      String @default("RETAIL") // RETAIL | BUSINESS
+  direction      String @default("IQD_TO_ECNY") // IQD_TO_ECNY | ECNY_TO_IQD
+  sourceCurrency String @default("IQD")
+  targetCurrency String @default("E_CNY")
+  sourceAmount   Float
+  targetAmount   Float
+  exchangeRate   Float
+  feeAmount      Float
+  feePercent     Float
+  status         String @default("PENDING_SETTLEMENT") // PENDING_SETTLEMENT | PROCESSING | COMPLETED | COMPLIANCE_HOLD | REJECTED
+
+  senderName     String
+  senderEmail    String
+  senderPhone    String? @default("")
+  senderIdNumber String? @default("")
+  senderEntity   String? @default("INDIVIDUAL") // INDIVIDUAL | ENTERPRISE | GOVERNMENT
+  senderCompany  String? @default("")
+
+  recipientName         String
+  recipientIdentifier   String // e-CNY Wallet ID / Bank Account IBAN / Mobile
+  recipientEntity       String? @default("INDIVIDUAL") // INDIVIDUAL | ENTERPRISE
+  recipientBankOrBureau String? @default("PBOC mBridge Digital Clearing Hub")
+
+  purpose          String @default("COMMERCIAL_TRADE") // REMITTANCE | TUITION | COMMERCIAL_TRADE | PORT_CUSTOMS | LOGISTICS | TRAVEL
+  settlementMethod String @default("MBRIDGE_CBDC") // E_CNY_WALLET | MBRIDGE_CBDC | CIPS_INTERBANK | ZAIN_CASH | QI_CARD | FIB_TRANSFER | AL_FAW_ESCROW
+
+  commercialInvoiceRef  String? @default("")
+  billOfLading          String? @default("")
+  customsDeclarationNo  String? @default("")
+  contractValueUsd      Float?  @default(0.0)
+  taxRegistrationNumber String? @default("")
+
+  settlementTxHash String? @default("")
+  verificationCode String? @default("")
+  qrPayload        String? @default("")
+  complianceNotes  String? @default("")
+  adminNotes       String? @default("")
+  rejectionReason  String? @default("")
+
+  settledAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model PaymentExchangeRate {
+  id                 String   @id @default(cuid())
+  pair               String   @unique @default("IQD_ECNY")
+  baseRate           Float    @default(188.50)
+  bidRate            Float    @default(187.80)
+  askRate            Float    @default(189.20)
+  retailFeePercent   Float    @default(0.75)
+  businessFeePercent Float    @default(0.35)
+  minimumRetailIqd   Float    @default(25000.0)
+  minimumBusinessIqd Float    @default(1000000.0)
+  change24h          Float    @default(0.42)
+  high24h            Float    @default(189.85)
+  low24h             Float    @default(187.10)
+  volume24h          String   @default("¥ 42.8M / د.ع 8.06B")
+  ecnyReservePool    Float    @default(150000000.0)
+  iqdReservePool     Float    @default(28275000000.0)
+  mbridgeStatus      String   @default("ACTIVE")
+  cipsGatewayStatus  String   @default("ONLINE")
+  cbiClearingStatus  String   @default("SYNCHRONIZED")
+  lastUpdatedBy      String?  @default("PBOC / CBI Clearing Interbank Feed")
+  updatedAt          DateTime @updatedAt
+}
+
+model BricsTopic {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  titleEn    String
+  titleAr    String   @default("")
+  titleZh    String   @default("")
+  titleCkb   String   @default("")
+  summaryEn  String
+  summaryAr  String   @default("")
+  summaryZh  String   @default("")
+  summaryCkb String   @default("")
+  contentEn  String
+  contentAr  String   @default("")
+  contentZh  String   @default("")
+  contentCkb String   @default("")
+  imageUrl   String?
+  category   String   @default("ECONOMY")
+  isFeatured Boolean  @default(true)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model ChineseProduct {
+  id             String   @id @default(cuid())
+  titleEn        String
+  titleAr        String   @default("")
+  titleZh        String   @default("")
+  titleCkb       String   @default("")
+  descriptionEn  String
+  descriptionAr  String   @default("")
+  descriptionZh  String   @default("")
+  descriptionCkb String   @default("")
+  imageUrl       String
+  category       String
+  link           String?
+  isFeatured     Boolean  @default(false)
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userEmail String
+  action    String
+  resource  String
+  itemId    String?
+  details   String?
+}
+
+model Video {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  titleEn        String
+  titleAr        String   @default("")
+  titleZh        String   @default("")
+  titleCkb       String   @default("")
+  descriptionEn  String
+  descriptionAr  String   @default("")
+  descriptionZh  String   @default("")
+  descriptionCkb String   @default("")
+  videoUrl       String
+  coverUrl       String
+  category       String
+  region         String
+  duration       String   @default("00:00")
+  isFeatured     Boolean  @default(false)
+  isTrending     Boolean  @default(false)
+  publishedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Documentary {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  titleEn        String
+  titleAr        String   @default("")
+  titleZh        String   @default("")
+  titleCkb       String   @default("")
+  descriptionEn  String
+  descriptionAr  String   @default("")
+  descriptionZh  String   @default("")
+  descriptionCkb String   @default("")
+  synopsisEn     String   @default("")
+  synopsisAr     String   @default("")
+  synopsisZh     String   @default("")
+  synopsisCkb    String   @default("")
+  videoUrl       String
+  coverUrl       String
+  director       String?
+  category       String
+  region         String
+  duration       String   @default("00:00")
+  isFeatured     Boolean  @default(false)
+  isTrending     Boolean  @default(false)
+  publishedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model FinanceInsight {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  category    String
+  coverImage  String
+  author      String   @default("ICA Economic Research Desk")
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  titleEn  String
+  titleAr  String @default("")
+  titleZh  String @default("")
+  titleCkb String @default("")
+
+  summaryEn  String
+  summaryAr  String @default("")
+  summaryZh  String @default("")
+  summaryCkb String @default("")
+
+  bodyEn  String @default("")
+  bodyAr  String @default("")
+  bodyZh  String @default("")
+  bodyCkb String @default("")
+}
+
+model CulturalExchangeCategory {
+  id        String                    @id @default(cuid())
+  slug      String                    @unique
+  nameEn    String
+  nameAr    String                    @default("")
+  nameZh    String                    @default("")
+  nameCkb   String                    @default("")
+  order     Int                       @default(0)
+  programs  CulturalExchangeProgram[]
+  createdAt DateTime                  @default(now())
+  updatedAt DateTime                  @updatedAt
+}
+
+model CulturalExchangeProgram {
+  id                  String                   @id @default(cuid())
+  slug                String                   @unique
+  titleEn             String
+  titleAr             String                   @default("")
+  titleZh             String                   @default("")
+  titleCkb            String                   @default("")
+  descriptionEn       String
+  descriptionAr       String                   @default("")
+  descriptionZh       String                   @default("")
+  descriptionCkb      String                   @default("")
+  detailsEn           String                   @default("")
+  detailsAr           String                   @default("")
+  detailsZh           String                   @default("")
+  detailsCkb          String                   @default("")
+  categoryId          String
+  category            CulturalExchangeCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  institutionName     String
+  coverImage          String
+  eventDate           String?
+  programStartDate    String?
+  programEndDate      String?
+  applicationDeadline String?
+  eligibility         String?
+  contactUrl          String?
+  applicationUrl      String?
+  featured            Boolean                  @default(false)
+  order               Int                      @default(0)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+}
+
+model Page {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  path         String        @unique
+  title        String        @default("{}") // Serialized Json: LocalizedString
+  description  String?       @default("{}") // Serialized Json: LocalizedString
+  pillar       String        @default("GENERAL")
+  sections     PageSection[]
+  status       String        @default("draft")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  createdBy    String?
+  updatedBy    String?
+
+  @@index([status])
+  @@index([pillar])
+}
+
+model PageSection {
+  id             String            @id @default(cuid())
+  pageId         String
+  page           Page              @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  type           String
+  name           String
+  displayOrder   Int               @default(0)
+  visibility     String            @default("visible")
+  scheduleFrom   DateTime?
+  scheduleTo     DateTime?
+  styleOverride  String?           @default("{}") // Serialized Json
+  localeOverride String?           @default("{}") // Serialized Json
+  config         String?           @default("{}") // Serialized Json
+  items          SectionItem[]
+  revisions      SectionRevision[]
+  status         String            @default("draft")
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  createdBy      String?
+  updatedBy      String?
+
+  @@index([pageId, displayOrder])
+  @@index([type])
+  @@index([status])
+}
+
+model SectionItem {
+  id           String      @id @default(cuid())
+  sectionId    String
+  section      PageSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title        String      @default("{}") // Serialized Json: LocalizedString
+  subtitle     String?     @default("{}") // Serialized Json: LocalizedString
+  body         String?     @default("{}") // Serialized Json: LocalizedString
+  image        String?
+  imageAlt     String?     @default("{}") // Serialized Json: LocalizedString
+  ctaLabel     String?     @default("{}") // Serialized Json: LocalizedString
+  ctaHref      String?
+  icon         String?
+  metadata     String?     @default("{}") // Serialized Json
+  displayOrder Int         @default(0)
+  visibility   String      @default("visible")
+  status       String      @default("draft")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  createdBy    String?
+  updatedBy    String?
+
+  @@index([sectionId, displayOrder])
+  @@index([status])
+}
+
+model SectionTemplate {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  type          String
+  name          String   @default("{}") // Serialized Json: LocalizedString
+  description   String   @default("{}") // Serialized Json: LocalizedString
+  defaultConfig String   @default("{}") // Serialized Json
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type])
+  @@index([status])
+}
+
+model SectionRevision {
+  id        String      @id @default(cuid())
+  sectionId String
+  section   PageSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  snapshot  String      @default("{}") // Serialized Json
+  actorId   String
+  action    String
+  timestamp DateTime    @default(now())
+
+  @@index([sectionId, timestamp])
+  @@index([actorId])
+}
+
+model FooterConfig {
+  id                    String         @id @default(cuid())
+  tagline               String         @default("Bilateral Strategic Intelligence & Economic Integration Codex")
+  taglineAr             String?        @default("مدونة الاستخبارات الاستراتيجية والتكامل الاقتصادي الثنائي")
+  taglineZh             String?        @default("双边战略情报与经贸一体化主权法典")
+  taglineCkb            String?        @default("پەیڕەوی هەواڵگری ستراتیژی و یەکگرتنی ئابووری دوولایەنە")
+  ctaLabel              String         @default("Subscribe to the ICA Newsletter")
+  ctaHref               String         @default("#newsletter")
+  newsletterEnabled     Boolean        @default(true)
+  newsletterHeading     String         @default("Diplomatic Dispatches & Economic Briefs")
+  newsletterBody        String         @default("Receive real-time sovereign intelligence, bilateral trade indices, and strategic analysis directly to your secure inbox.")
+  newsletterPlaceholder String         @default("Enter official email address...")
+  newsletterSubmit      String         @default("Subscribe")
+  newsletterSuccess     String         @default("Successfully subscribed to secure bilateral channel.")
+  newsletterError       String         @default("Subscription transmission failed. Please verify network credentials.")
+  showLanguageSwitcher  Boolean        @default(true)
+  showDownloadApp       Boolean        @default(true)
+  copyrightText         String         @default("© 2026 Iraqi-Chinese Agency. All Diplomatic Rights Reserved.")
+  showBackToTop         Boolean        @default(true)
+  partnersEnabled       Boolean        @default(true)
+  partnersHeading       String         @default("Accredited Sovereign & Corporate Partners")
+  marqueeEnabled        Boolean        @default(true)
+  status                String         @default("PUBLISHED")
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  columns               FooterColumn[]
+}
+
+model FooterColumn {
+  id           String       @id @default(cuid())
+  configId     String
+  heading      String
+  headingAr    String?
+  headingZh    String?
+  headingCkb   String?
+  displayOrder Int          @default(0)
+  status       String       @default("PUBLISHED")
+  config       FooterConfig @relation(fields: [configId], references: [id], onDelete: Cascade)
+  links        FooterLink[]
+}
+
+model FooterLink {
+  id           String       @id @default(cuid())
+  columnId     String
+  label        String
+  labelAr      String?
+  labelZh      String?
+  labelCkb     String?
+  href         String
+  external     Boolean      @default(false)
+  displayOrder Int          @default(0)
+  status       String       @default("PUBLISHED")
+  column       FooterColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
+}
+
+model CisePillar {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  titleEn         String
+  titleAr         String   @default("")
+  titleZh         String   @default("")
+  titleCkb        String   @default("")
+  descriptionEn   String
+  descriptionAr   String   @default("")
+  descriptionZh   String   @default("")
+  descriptionCkb  String   @default("")
+  leadFellowEn    String   @default("")
+  leadFellowAr    String   @default("")
+  leadFellowZh    String   @default("")
+  leadFellowCkb   String   @default("")
+  metricLabelEn   String   @default("")
+  metricLabelAr   String   @default("")
+  metricLabelZh   String   @default("")
+  metricLabelCkb  String   @default("")
+  metricValue     String   @default("")
+  topics          String   @default("[]")
+  displayOrder    Int      @default(0)
+  status          String   @default("PUBLISHED")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CiseExpert {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  nameEn       String
+  nameAr       String   @default("")
+  nameZh       String   @default("")
+  nameCkb      String   @default("")
+  titleEn      String
+  titleAr      String   @default("")
+  titleZh      String   @default("")
+  titleCkb     String   @default("")
+  bioEn        String   @default("")
+  bioAr        String   @default("")
+  bioZh        String   @default("")
+  bioCkb       String   @default("")
+  imageUrl     String   @default("")
+  pillars      String   @default("[]")
+  languages    String   @default("[]")
+  email        String   @default("")
+  phone        String   @default("")
+  displayOrder Int      @default(0)
+  status       String   @default("PUBLISHED")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model CisePublication {
+  id                   String   @id @default(cuid())
+  slug                 String   @unique
+  type                 String   @default("POLICY_BRIEF")
+  publicationType      String   @default("Policy Brief")
+  titleEn              String
+  titleAr              String   @default("")
+  titleZh              String   @default("")
+  titleCkb             String   @default("")
+  excerptEn            String   @default("")
+  excerptAr            String   @default("")
+  excerptZh            String   @default("")
+  excerptCkb           String   @default("")
+  contentEn            String   @default("")
+  contentAr            String   @default("")
+  contentZh            String   @default("")
+  contentCkb           String   @default("")
+  imageUrl             String   @default("")
+  authorName           String   @default("")
+  topics               String   @default("[]")
+  region               String   @default("BILATERAL")
+  doi                  String   @default("")
+  pdfUrl               String   @default("")
+  downloadCount        Int      @default(0)
+  dataCitationEligible Boolean  @default(true)
+  wordCount            Int      @default(2500)
+  status               String   @default("PUBLISHED")
+  publishedAt          DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model CiseEvent {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  titleEn         String
+  titleAr         String   @default("")
+  titleZh         String   @default("")
+  titleCkb        String   @default("")
+  descriptionEn   String   @default("")
+  descriptionAr   String   @default("")
+  descriptionZh   String   @default("")
+  descriptionCkb  String   @default("")
+  locationEn      String   @default("")
+  locationAr      String   @default("")
+  locationZh      String   @default("")
+  locationCkb     String   @default("")
+  eventDate       String   @default("")
+  eventType       String   @default("SYMPOSIUM")
+  registrationUrl String   @default("")
+  displayOrder    Int      @default(0)
+  status          String   @default("PUBLISHED")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CiseProject {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  nameEn          String
+  nameAr          String   @default("")
+  nameZh          String   @default("")
+  nameCkb         String   @default("")
+  sectorEn        String   @default("")
+  sectorAr        String   @default("")
+  sectorZh        String   @default("")
+  sectorCkb       String   @default("")
+  status          String   @default("OPERATIONAL")
+  valueUsd        String   @default("")
+  contractor      String   @default("")
+  locationEn      String   @default("")
+  locationAr      String   @default("")
+  locationZh      String   @default("")
+  locationCkb     String   @default("")
+  verifiedSources String   @default("[]")
+  displayOrder    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CiseCourse {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  level          String   @default("HSK-1")
+  titleEn        String
+  titleAr        String   @default("")
+  titleZh        String   @default("")
+  titleCkb       String   @default("")
+  descriptionEn  String   @default("")
+  descriptionAr  String   @default("")
+  descriptionZh  String   @default("")
+  descriptionCkb String   @default("")
+  duration       String   @default("")
+  schedule       String   @default("")
+  fee            String   @default("")
+  displayOrder   Int      @default(0)
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model CiseInsuranceApplication {
+  id           String   @id @default(cuid())
+  ticketId     String   @unique
+  fullName     String
+  email        String
+  phone        String   @default("")
+  company      String
+  projectValue String   @default("")
+  sector       String   @default("")
+  message      String   @default("")
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model CiseConsultancyApplication {
+  id           String   @id @default(cuid())
+  ticketId     String   @unique
+  fullName     String
+  email        String
+  phone        String   @default("")
+  entityName   String
+  serviceType  String   @default("BILATERAL")
+  jurisdiction String   @default("IRAQ_CHINA")
+  inquiryText  String   @default("")
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+

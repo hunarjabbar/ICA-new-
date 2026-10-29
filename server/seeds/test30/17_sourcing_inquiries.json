@@ -1,0 +1,14 @@
+[
+  {
+    "ticketId": "SRC-2026-TEST-8812",
+    "fullName": "Karim Al-Hassani (Procurement Director)",
+    "email": "procurement@iraq-national-grid.gov.iq",
+    "company": "Ministry of Electricity, Southern Transmission Directorate",
+    "inquiryType": "SUBSTATION_TRANSFORMERS",
+    "targetMarket": "CHINA",
+    "budget": "$18,500,000",
+    "message": "Requesting factory inspection and technical compliance verification for 12 units of 132/33kV power transformers in Jiangsu province.",
+    "status": "PROCESSING",
+    "assignedOfficer": "Shanghai Sourcing Plenipotentiary Desk"
+  }
+]

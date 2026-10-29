@@ -1,0 +1,26 @@
+{
+  "category": {
+    "slug": "diplomatic-youth-fellowships",
+    "nameEn": "Bilateral Diplomatic Fellowships",
+    "nameAr": "الزمالات الدبلوماسية الثنائية",
+    "nameZh": "双边青年外交官高级访学研修项目",
+    "nameCkb": "بورس و مەشقی دیپلۆماسی هاوبەش"
+  },
+  "programs": [
+    {
+      "slug": "test-prog-baghdad-beijing-youth-diplomacy-2026",
+      "titleEn": "Baghdad-Beijing Bilateral Youth Diplomatic Leadership Fellowship (Cohort 4)",
+      "titleAr": "زمالة القيادات الدبلوماسية الشبابية الثنائية بغداد-بكين (الدفعة الرابعة)",
+      "titleZh": "第四届巴格达-北京青年外交领袖与经贸谈判高级学者访学奖学金项目",
+      "titleCkb": "خولی چوارەمی پێگەیاندنی سەرکردە دیپلۆماتکارە گەنجەکانی بەغدا و پەکین",
+      "descriptionEn": "A 6-month fully funded sovereign residency split between Foreign Affairs University in Beijing and Al-Mustansiriya Institute in Baghdad.",
+      "descriptionAr": "إقامة سيادية ممولة بالكامل لمدة 6 أشهر مقسمة بين جامعة الشؤون الخارجية في بكين والمعهد المستنصرية في بغداد.",
+      "descriptionZh": "由两国教育部与外交智库联合全额资助，分别在北京外交学院与巴格达穆斯坦西里亚学术中心开展为期6个月的浸润式实战外交研修。",
+      "descriptionCkb": "بۆ ماوەی ٦ مانگ بە تەواوی خەرجییەوە لە نێوان پەکین و بەغدا بۆ فێربوونی یاسای نێودەوڵەتی و دیپلۆماسی.",
+      "institutionName": "Diplomatic Institute of the Foreign Ministry & China Foreign Affairs University",
+      "coverImage": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200",
+      "eligibility": "Mid-career diplomats, trade negotiators, and academic researchers aged 25-40.",
+      "featured": true
+    }
+  ]
+}

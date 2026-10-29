@@ -1,0 +1,32 @@
+[
+  {
+    "symbol": "BASRAH_HEAVY_FOB",
+    "name": "Basrah Heavy Crude FOB Khor Al-Zubair",
+    "nameZh": "巴士拉重质原油离岸现货指数",
+    "nameAr": "خام البصرة الثقيل فوب خور الزبير",
+    "category": "ENERGY_COMMODITIES",
+    "price": 78.45,
+    "change": 1.12,
+    "changePercent": 1.45,
+    "volume": "1,450,000 bpd",
+    "high": 79.1,
+    "low": 77.2,
+    "open": 77.33,
+    "currency": "USD / RMB Equivalent"
+  },
+  {
+    "symbol": "INE_SC_CRUDE_CNY",
+    "name": "Shanghai International Energy Exchange Crude Oil (INE SC)",
+    "nameZh": "上海国际能源交易中心原油期货主力合约",
+    "nameAr": "بورصة شنغهاي الدولية للطاقة - عقود النفط الآجلة",
+    "category": "COMMODITY_FUTURES",
+    "price": 588.6,
+    "change": 6.4,
+    "changePercent": 1.1,
+    "volume": "182,400 Lots",
+    "high": 592,
+    "low": 581.2,
+    "open": 582.5,
+    "currency": "CNY / Barrel"
+  }
+]

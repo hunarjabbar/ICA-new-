@@ -1,0 +1,216 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isCiseCommandHub() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        ((request.auth.token.email == 'hunar.jabbar70@gmail.com' || request.auth.token.email == 'admin@iraqi-chineseagency.com') && request.auth.token.email_verified == true)
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Validation Blueprints (Pillar 2)
+    
+    function isValidNewsletterSubscriber(data) {
+      return data.keys().hasAll(['email', 'timestamp'])
+        && data.keys().hasOnly(['email', 'timestamp'])
+        && data.email is string && data.email.size() <= 256
+        && data.timestamp == request.time;
+    }
+
+    function isValidContactSubmission(data) {
+      return data.keys().hasAll(['name', 'email', 'message', 'timestamp'])
+        && data.keys().hasOnly(['name', 'email', 'company', 'bureau', 'message', 'timestamp', 'category'])
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 100
+        && data.email is string && data.email.size() <= 256
+        && data.message is string && data.message.size() >= 10 && data.message.size() <= 4000
+        && (!data.keys().contains('company') || (data.company is string && data.company.size() <= 200))
+        && (!data.keys().contains('bureau') || data.bureau is string)
+        && (!data.keys().contains('category') || data.category is string)
+        && data.timestamp == request.time;
+    }
+
+    function isValidCulturalProgram(data) {
+      return data.keys().hasAll(['titleEn', 'institutionName'])
+        && data.keys().hasOnly([
+          'titleEn', 'titleAr', 'titleZh', 'titleCkb',
+          'descriptionEn', 'descriptionAr', 'descriptionZh', 'descriptionCkb',
+          'detailsEn', 'detailsAr', 'detailsZh', 'detailsCkb',
+          'institutionName', 'coverImage', 'applicationDeadline', 'eventDate',
+          'categoryId', 'categorySlug', 'eligibility', 'category', 'slug'
+        ])
+        && data.titleEn is string && data.titleEn.size() <= 200
+        && data.institutionName is string && data.institutionName.size() <= 200;
+    }
+
+    function isValidCulturalCategory(data) {
+      return data.keys().hasAll(['nameEn'])
+        && data.keys().hasOnly(['nameEn', 'nameAr', 'nameZh', 'nameCkb', 'slug', 'description', 'descriptionEn'])
+        && data.nameEn is string && data.nameEn.size() <= 100;
+    }
+
+    function isValidCulturalPartner(data) {
+      return data.keys().hasAll(['nameEn', 'locationEn'])
+        && data.keys().hasOnly([
+          'nameEn', 'nameAr', 'nameZh', 'nameCkb',
+          'locationEn', 'locationAr', 'locationZh', 'locationCkb',
+          'specialtyEn', 'specialtyAr', 'specialtyZh', 'specialtyCkb',
+          'mouScopeEn', 'mouScopeAr', 'mouScopeZh', 'mouScopeCkb',
+          'tierBadge'
+        ])
+        && data.nameEn is string && data.nameEn.size() <= 200
+        && data.locationEn is string && data.locationEn.size() <= 200;
+    }
+
+    function isValidApplication(data) {
+      return data.keys().hasAll(['fullName', 'email', 'timestamp'])
+        && data.keys().hasOnly([
+          'fullName', 'email', 'phone', 'nationality', 'affiliation',
+          'trackType', 'programTarget', 'academicLevel', 'hskLevel',
+          'statement', 'status', 'timestamp', 'source'
+        ])
+        && data.fullName is string && data.fullName.size() <= 200
+        && data.email is string && data.email.size() <= 256
+        && data.timestamp == request.time;
+    }
+
+    function isValidChineseCourse(data) {
+      return data.keys().hasAll(['titleEn', 'level'])
+        && data.keys().hasOnly([
+          'titleEn', 'titleAr', 'titleZh', 'titleCkb',
+          'slug', 'level', 'type', 'descriptionEn', 'descriptionAr', 'descriptionZh', 'descriptionCkb',
+          'durationEn', 'durationAr', 'durationZh', 'durationCkb',
+          'priceEn', 'priceAr', 'priceZh', 'priceCkb',
+          'featuresEn', 'featuresAr', 'featuresZh', 'featuresCkb',
+          'imageUrl', 'isFeatured', 'order', 'createdAt', 'updatedAt'
+        ])
+        && data.titleEn is string && data.titleEn.size() <= 200;
+    }
+
+    function isValidChineseInstructor(data) {
+      return data.keys().hasAll(['nameEn', 'titleEn'])
+        && data.keys().hasOnly([
+          'nameEn', 'nameAr', 'nameZh', 'nameCkb',
+          'slug', 'titleEn', 'titleAr', 'titleZh', 'titleCkb',
+          'bioEn', 'bioAr', 'bioZh', 'bioCkb',
+          'specialtiesEn', 'specialtiesAr', 'specialtiesZh', 'specialtiesCkb',
+          'imageUrl', 'isFeatured', 'order', 'createdAt', 'updatedAt'
+        ])
+        && data.nameEn is string && data.nameEn.size() <= 200;
+    }
+
+    function isValidChineseTestingSession(data) {
+      return data.keys().hasAll(['testType', 'testDate'])
+        && data.keys().hasOnly([
+          'testType', 'level', 'testDate', 'registrationDeadline',
+          'locationEn', 'locationAr', 'locationZh', 'locationCkb',
+          'feeEn', 'feeAr', 'feeZh', 'feeCkb',
+          'status', 'createdAt', 'updatedAt'
+        ])
+        && data.testType is string && data.testType.size() <= 50;
+    }
+
+    // Rules Definitions
+
+    match /chinese_sessions/{sessionId} {
+      allow read, list: if true;
+      allow write: if isCiseCommandHub();
+    }
+    
+    match /chinese_levels/{levelId} {
+      allow read, list: if true;
+      allow write: if isCiseCommandHub();
+    }
+    
+    match /chinese_tracks/{trackId} {
+      allow read, list: if true;
+      allow write: if isCiseCommandHub();
+    }
+
+    match /newsletter_subscribers/{subscriberId} {
+      allow create: if isValidId(subscriberId) && isValidNewsletterSubscriber(request.resource.data);
+      allow read: if isCiseCommandHub();
+    }
+
+    match /contact_submissions/{submissionId} {
+      allow create: if isValidId(submissionId) && isValidContactSubmission(request.resource.data);
+      allow read: if isCiseCommandHub();
+    }
+
+    match /inquiries/{inquiryId} {
+      allow create: if isValidId(inquiryId) && isValidContactSubmission(request.resource.data);
+      allow read: if isCiseCommandHub();
+    }
+
+    match /cultural_programs/{programId} {
+      allow read: if true;
+      allow create, update: if isCiseCommandHub() && isValidId(programId) && isValidCulturalProgram(request.resource.data);
+      allow delete: if isCiseCommandHub();
+    }
+
+    match /cultural_categories/{categoryId} {
+      allow read: if true;
+      allow create, update: if isCiseCommandHub() && isValidId(categoryId) && isValidCulturalCategory(request.resource.data);
+      allow delete: if isCiseCommandHub();
+    }
+
+    match /cultural_partners/{partnerId} {
+      allow read: if true;
+      allow create, update: if isCiseCommandHub() && isValidId(partnerId) && isValidCulturalPartner(request.resource.data);
+      allow delete: if isCiseCommandHub();
+    }
+
+    match /chinese_courses/{courseId} {
+      allow read: if true;
+      allow create, update: if isCiseCommandHub() && isValidId(courseId) && isValidChineseCourse(request.resource.data);
+      allow delete: if isCiseCommandHub();
+    }
+
+    match /chinese_instructors/{instructorId} {
+      allow read: if true;
+      allow create, update: if isCiseCommandHub() && isValidId(instructorId) && isValidChineseInstructor(request.resource.data);
+      allow delete: if isCiseCommandHub();
+    }
+
+    match /chinese_testing_sessions/{sessionId} {
+      allow read: if true;
+      allow create, update: if isCiseCommandHub() && isValidId(sessionId) && isValidChineseTestingSession(request.resource.data);
+      allow delete: if isCiseCommandHub();
+    }
+
+    match /applications/{applicationId} {
+      allow create: if isValidId(applicationId) && isValidApplication(request.resource.data);
+      allow read, update: if isCiseCommandHub();
+      allow delete: if isCiseCommandHub();
+    }
+
+    match /sections/{sectionId} {
+      allow read: if true;
+      allow write: if isCiseCommandHub();
+    }
+
+    // Health / Connection Test
+    match /test/{testId} {
+      allow read: if true;
+    }
+
+    // CiseCommandHub Access Control
+    match /admins/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false; 
+    }
+  }
+}

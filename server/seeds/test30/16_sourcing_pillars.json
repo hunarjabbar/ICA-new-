@@ -1,0 +1,27 @@
+[
+  {
+    "slug": "test-sourcing-heavy-industrial-equipment-verification",
+    "serviceCode": "HEAVY_MACHINERY_QA",
+    "iconName": "ShieldCheck",
+    "isActive": true,
+    "titleEn": "Heavy Industrial Machinery & Equipment Factory Verification",
+    "titleAr": "التحقق من مصانع الآلات والمعدات الصناعية الثقيلة",
+    "titleZh": "大型重工业机械设备源头制造工厂准入审核与品质验厂",
+    "titleCkb": "پشکنین و دڵنیابوونەوە لە کارگەکانی ئامێری پیشەسازی قورس لە چین",
+    "descEn": "End-to-end metallurgical testing, ISO/CE compliance audits, and pre-shipment container sealing by accredited inspectors in Yangtze & Pearl River deltas.",
+    "descAr": "فحوصات ميتالورجية شاملة وتدقيق مطابقة ISO/CE وختم الحاويات قبل الشحن بواسطة مفتشين معتمدين في دلتا اليانغتسي ونهر اللؤلؤ.",
+    "descZh": "在长三角与珠三角产业带，由驻华特派主权质检专员提供原材料金相分析、出厂满负荷动平衡测试及装箱封签全程监理服务。",
+    "descCkb": "پشکنینی وردی کوالیتی و دڵنیایی پێش بارکردن لە ڕێگەی پشکنەرە نێودەوڵەتییەکانەوە لە چین.",
+    "leadSummaryEn": "Eliminate supply-chain risks for public works infrastructure projects in Iraq.",
+    "leadSummaryAr": "القضاء على مخاطر سلاسل التوريد لمشاريع البنية التحتية العامة في العراق.",
+    "leadSummaryZh": "彻底杜绝伊拉克国家重大公共基础设施工程物资供应链采购中的不合格品与伪劣备件风险。",
+    "leadSummaryCkb": "نەهێشتنی هەموو جۆرە کێشەیەک لە هاوردەکردنی ئامێر بۆ پڕۆژە فەرمییەکانی عێراق.",
+    "wordCount": 420,
+    "readTimeEn": "3 Min Read",
+    "readTimeAr": "قراءة في 3 دقائق",
+    "readTimeZh": "3 分钟速读",
+    "readTimeCkb": "٣ خولەک خوێندنەوە",
+    "metricsJson": "[{\"label\":\"Factories Audited\",\"value\":\"850+\"},{\"label\":\"Pass Rate\",\"value\":\"99.4%\"}]",
+    "standardsJson": "[\"ISO 9001:2026\",\"GB/T 19001\",\"Iraqi Central Organization for Standardization (COQC)\"]"
+  }
+]

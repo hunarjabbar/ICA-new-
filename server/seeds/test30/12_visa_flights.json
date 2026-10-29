@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "test-flight-beijing-baghdad-ca945-express",
+    "titleEn": "Direct Air Corridor: Air China CA945 / Iraqi Airways IA471 (Beijing - Baghdad)",
+    "titleAr": "الممر الجوي المباشر: طيران الصين CA945 / الخطوط الجوية العراقية IA471 (بكين - بغداد)",
+    "titleZh": "中伊直飞空中干线：国航CA945 / 伊拉克航空IA471（北京首都-巴格达国际）",
+    "titleCkb": "هێڵی ئاسمانی ڕاستەوخۆ: پەکین - بەغدا (کۆمپانیای فڕۆکەوانی عێراق و چین)",
+    "serviceType": "COMMERCIAL_AVIATION",
+    "originRegion": "BEIJING_PEK",
+    "destinationRegion": "BAGHDAD_BGW",
+    "summaryEn": "Daily scheduled direct widebody passenger and cargo flights connecting the two capitals with VIP consular customs clearance.",
+    "summaryAr": "رحلات ركاب وشحن جوي يومية مباشرة على متن طائرات عريضة البدن تربط العاصمتين مع تخليص جمركي ودبلوماسي ميسر.",
+    "summaryZh": "每周七班直达宽体客货运双向直飞航线，提供双边外交礼遇与商务要客一站式高效通关。",
+    "summaryCkb": "گەشتی ڕۆژانەی ڕاستەوخۆ بۆ گواستنەوەی سەرنشین و کەلوپەل لە نێوان هەردوو پایتەختدا.",
+    "detailsEn": "Operated with Boeing 787-9 Dreamliners with dedicated cargo compartments for temperature-controlled high-tech bilateral trade goods.",
+    "detailsAr": "تشغّل بواسطة طائرات بوينغ 787-9 دريملاينر مع مقصورات شحن مخصصة للبضائع التكنولوجية الثنائية عالية الحساسية.",
+    "detailsZh": "由波音787-9客机执飞，配备恒温生物医药与高端精密机械专属货舱，直飞飞行时间约8.5小时。",
+    "detailsCkb": "بە بەکارهێنانی فڕۆکەی نوێ بەڕێوەدەچێت بە تەواوی ئاسانکارییە بازرگانییەکانەوە.",
+    "airlineOrAuthority": "Civil Aviation Authority of Iraq & CAAC",
+    "processingTime": "8h 35m Nonstop",
+    "feeOrCost": "Standard Diplomatic / Commercial Tariff",
+    "imageUrl": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1200",
+    "isFeatured": true,
+    "isTrending": true
+  }
+]

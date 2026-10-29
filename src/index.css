@@ -1,0 +1,589 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #ffffff;
+  --color-card: #ffffff;
+  --color-border: #e2e8f0;
+  --color-navy: #0f172a;
+  --color-royal: #cc0000;
+  --color-gold-text: #b45309;
+  --font-serif: 'Merriweather', serif;
+
+  /* Sovereign Brand Red Palette */
+  --color-brand-950: #7f0a1e;
+  --color-brand-900: #991b1b;
+  --color-brand-850: #b91c1c;
+  --color-brand-800: #cc0000;
+  --color-brand-700: #dc2626;
+  --color-brand-600: #ef4444;
+  --color-brand-500: #f87171;
+  --color-brand-400: #fca5a5;
+  --color-brand-300: #fecaca;
+  --color-brand-200: #fee2e2;
+  --color-brand-100: #fef2f2;
+  --color-brand-50: #ffffff;
+
+  /* Ink Deep Dark Palette - Kept for text and contrast but lighter variants preferred */
+  --color-ink-950: #0a0a0c;
+  --color-ink-900: #121217;
+  --color-ink-800: #1c1c24;
+  --color-ink-700: #2a2a36;
+  --color-ink-600: #4b5563;
+  --color-ink-0: #ffffff;
+
+  --animate-marquee-vertical: marquee-vertical 20s linear infinite;
+  --animate-marquee: marquee 35s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+[dir="rtl"] @keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(50%); }
+}
+
+@keyframes marquee-vertical {
+  0% { transform: translateY(0%); }
+  100% { transform: translateY(-50%); }
+}
+
+.hover\:pause-animation:hover,
+.hover-pause:hover {
+  animation-play-state: paused;
+}
+
+/* Self-Hosted Local Fonts */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/inter-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/inter-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/inter-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/inter-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/merriweather-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Merriweather';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/merriweather-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/noto-naskh-arabic-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/noto-naskh-arabic-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/noto-naskh-arabic-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/noto-naskh-arabic-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/noto-serif-sc-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/noto-serif-sc-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/noto-sans-sc-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/noto-sans-sc-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/noto-sans-sc-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/noto-sans-arabic-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/noto-sans-arabic-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans Arabic';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/noto-sans-arabic-700.woff2') format('woff2');
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-arabic: 'Noto Naskh Arabic', 'Noto Sans Arabic', sans-serif;
+    --font-chinese: 'Noto Sans SC', 'Noto Serif SC', sans-serif;
+
+    /* Unified Red-White Palette Tokens */
+    --color-white: #FFFFFF;
+    --color-black: #000000;
+    --color-red: #DC2626;
+    --color-red-hover: #B91C1C;
+    --color-red-active: #991B1B;
+    --color-red-soft: #FEE2E2;
+    --color-red-text: #DC2626;
+    --color-surface: #FFFFFF;
+    --color-border: #E5E7EB;
+    --color-text-muted: #4B5563;
+  }
+
+  body, input, textarea, button, select {
+    font-family: var(--font-sans);
+  }
+
+  [dir="rtl"],
+  [dir="rtl"] body,
+  [dir="rtl"] input,
+  [dir="rtl"] textarea,
+  [dir="rtl"] button,
+  [dir="rtl"] select {
+    font-family: var(--font-arabic);
+  }
+
+  [lang="zh"],
+  [lang="zh"] body,
+  [lang="zh"] input,
+  [lang="zh"] textarea,
+  [lang="zh"] button,
+  [lang="zh"] select {
+    font-family: var(--font-chinese);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: inherit;
+  }
+
+  /* Global Harmonized Typography Classes */
+  .ica-heading {
+    font-family: var(--font-sans);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+
+  [dir="rtl"] .ica-heading,
+  .rtl .ica-heading {
+    font-family: var(--font-arabic);
+    letter-spacing: normal;
+  }
+
+  [lang="zh"] .ica-heading {
+    font-family: var(--font-chinese);
+    letter-spacing: normal;
+  }
+
+  .ica-subheading {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  [dir="rtl"] .ica-subheading,
+  .rtl .ica-subheading {
+    font-family: var(--font-arabic);
+  }
+
+  [lang="zh"] .ica-subheading {
+    font-family: var(--font-chinese);
+  }
+
+  .ica-card-title {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  [dir="rtl"] .ica-card-title,
+  .rtl .ica-card-title {
+    font-family: var(--font-arabic);
+  }
+
+  [lang="zh"] .ica-card-title {
+    font-family: var(--font-chinese);
+  }
+
+  /* Sovereign Editorial Eyebrow & Category Kicker Typography */
+  .ica-kicker,
+  .ica-eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-brand-800);
+    line-height: 1.35;
+    transition: color 200ms ease;
+  }
+
+  [dir="rtl"] .ica-kicker,
+  [dir="rtl"] .ica-eyebrow,
+  .rtl .ica-kicker,
+  .rtl .ica-eyebrow {
+    font-family: var(--font-arabic);
+    letter-spacing: normal;
+    text-transform: none;
+    font-weight: 700;
+    font-size: 0.8125rem;
+  }
+
+  [lang="zh"] .ica-kicker,
+  [lang="zh"] .ica-eyebrow {
+    font-family: var(--font-chinese);
+    letter-spacing: 0.05em;
+    text-transform: none;
+    font-weight: 600;
+    font-size: 0.8125rem;
+  }
+
+  /* Flaticon & Icon Font Crisp Rendering Enhancement */
+  i.fi,
+  .fi {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+  }
+}
+
+/* Accessible High-Contrast Focus Visible Outline */
+:focus-visible {
+  outline: 2px solid var(--color-brand-800);
+  outline-offset: 2px;
+}
+
+
+/* Vibrating and Pulse Keyframes */
+@keyframes softVibrate {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-0.5px, 0.5px); }
+  50% { transform: translate(0.5px, -0.5px); }
+  75% { transform: translate(-0.5px, -0.5px); }
+}
+
+@keyframes pulseRing {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.animate-soft-vibrate {
+  animation: softVibrate 2.4s infinite ease-in-out;
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+/* Card Hover Rules */
+.ica-card-interactive {
+  position: relative;
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease;
+  overflow: hidden;
+}
+
+.ica-card-interactive::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 3px;
+  background-color: var(--color-red);
+  transform: scaleX(0);
+  transform-origin: inline-start;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.ica-card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(220, 38, 38, 0.12);
+  border-color: var(--color-red);
+}
+
+.ica-card-interactive:hover::before {
+  transform: scaleX(1);
+}
+
+.ica-card-interactive:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+[dir="rtl"] .ica-card-interactive:hover .cta-arrow {
+  transform: translateX(-4px);
+}
+
+/* Button & Link Hover Rules */
+.ica-btn-primary {
+  background-color: var(--color-red);
+  color: var(--color-white);
+  border: 1px solid transparent;
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ica-btn-primary:hover {
+  background-color: var(--color-red-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.15);
+}
+.ica-btn-primary:active {
+  background-color: var(--color-red-active);
+}
+
+.ica-btn-outline {
+  background-color: transparent;
+  color: var(--color-red);
+  border: 1px solid var(--color-red);
+  transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ica-btn-outline:hover {
+  background-color: var(--color-red-soft);
+  color: var(--color-red-hover);
+  border-color: var(--color-red-hover);
+  transform: translateY(-1px);
+}
+
+.ica-link {
+  color: var(--color-red);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  transition: all 160ms ease;
+}
+.ica-link:hover {
+  color: var(--color-red-hover);
+  text-decoration-thickness: 2px;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Payment Settlement Facilitation Portal Styles */
+.pay-hero-gradient {
+  background: linear-gradient(135deg, var(--color-brand-800) 0%, var(--color-brand-700) 100%);
+}
+
+.pay-btn-primary {
+  background-color: var(--color-brand-800);
+  color: #ffffff;
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.pay-btn-primary:hover {
+  background-color: var(--color-brand-700);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
+}
+
+.pay-btn-secondary {
+  background-color: #ffffff;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  transition: all 180ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.pay-btn-secondary:hover {
+  border-color: var(--color-brand-800);
+  color: var(--color-brand-800);
+  transform: translateY(-1px);
+}
+
+.pay-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  background-color: var(--color-brand-50);
+  color: var(--color-brand-800);
+  border: 1px solid var(--color-brand-200);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pay-badge-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pay-card {
+  border-radius: 1rem;
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Global Full-Screen Responsive Container & Typography Alignment */
+.page-container,
+.site-header__inner {
+  width: 100%;
+  max-width: 1536px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.max-w-7xl {
+  max-width: 1536px;
+}
+
+@media (min-width: 640px) {
+  .page-container,
+  .site-header__inner {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container,
+  .site-header__inner {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Fluid Responsive Typography Scale */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-family: var(--font-sans);
+  color: #111827;
+  background-color: var(--color-surface, #FFFFFF);
+}
+
+/* Fluid Heading Proportions */
+h1, .text-4xl, .text-3xl {
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+/* Ensure all cards stretch harmoniously in grids */
+.grid > .bg-white,
+.grid > .rounded-2xl,
+.grid > .rounded-xl {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#composition-sections-container {
+  isolation: isolate;
+}

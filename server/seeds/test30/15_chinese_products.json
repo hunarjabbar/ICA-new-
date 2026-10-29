@@ -1,0 +1,16 @@
+[
+  {
+    "titleEn": "CRRC High-Power Heavy-Haul Diesel Freight Locomotive (Class IQ-FXD3)",
+    "titleAr": "قاطرة ديزل لشحن البضائع الثقيلة عالية القدرة من CRRC (طراز IQ-FXD3)",
+    "titleZh": "中车大功率交流传动重载内燃干线货运机车（IQ-FXD3型伊拉克专属定制版）",
+    "titleCkb": "شەمەندەفەری بارهەڵگری بەهێزی دیزڵ لە لایەن کۆمپانیای CRRC (مۆدێلی تایبەت)",
+    "descriptionEn": "4,400 kW heavy freight locomotive engineered for desert sandstorm environments and continuous 55°C ambient temperatures connecting Basra to Turkey border.",
+    "descriptionAr": "قاطرة شحن بقدرة 4400 كيلوواط مصممة خصيصاً لتحمل العواصف الرملية الصحراوية ودرجات حرارة حتى 55 مئوية لربط البصرة بالحدود التركية.",
+    "descriptionZh": "装车功率达4400千瓦的高性能货运机车，专为中东高温高沙尘恶劣工况定制设计，已正式服务于伊拉克'发展之路'铁路干线示范段。",
+    "descriptionCkb": "شەمەندەفەرێکی ٤٤٠٠ کیلۆواتی زۆر بەهێز کە بەرگەی گەرما و تۆزی بیابان دەگرێت بۆ هێڵی ئاسنی بەسرە.",
+    "imageUrl": "https://images.unsplash.com/photo-1474487548417-781cb71495f3?q=80&w=1200",
+    "category": "RAILWAY_AND_TRANSPORT",
+    "isFeatured": true,
+    "order": 1
+  }
+]

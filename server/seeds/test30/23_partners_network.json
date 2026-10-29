@@ -1,0 +1,13 @@
+[
+  {
+    "name": "China National Offshore Oil Corporation (CNOOC Middle East)",
+    "logoUrl": "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?q=80&w=600",
+    "websiteUrl": "https://www.cnoocltd.com",
+    "descriptionEn": "Long-term upstream petroleum partner developing the Missan oilfields and Maysan technical vocational centers.",
+    "descriptionAr": "شريك نفطي استراتيجي في تطوير حقول ميسان النفطية ومراكز التدريب المهني والتقني.",
+    "descriptionZh": "中国海洋石油集团中东有限公司，负责米桑油田群的绿色高效开发与本地化石化专业人才技术技能实训基地建设。",
+    "descriptionCkb": "هاوبەشی دێرین لە گەشەپێدانی کێڵگەکانی نەوتی میسان و مەشقی تەکنیکی بۆ کارمەندانی ناوخۆ.",
+    "isActive": true,
+    "order": 1
+  }
+]

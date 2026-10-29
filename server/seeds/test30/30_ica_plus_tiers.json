@@ -1,0 +1,74 @@
+[
+  {
+    "id": "test-tier-diplomatic-fellow",
+    "name": {
+      "en": "Diplomatic Scholar & Analyst",
+      "ar": "باحث ومحلل دبلوماسي معتمد",
+      "zh": "特聘外交学者与战略分析师",
+      "ckb": "توێژەری دیپلۆماسی و شیکارکەری باوەڕپێکراو"
+    },
+    "priceMonthly": "$59",
+    "priceAnnual": "$590",
+    "features": {
+      "en": [
+        "Unrestricted access to CIPS & Bilateral Clearing quantitative econometric models",
+        "Weekly intelligence briefs from Baghdad and Beijing Resident Bureaus",
+        "Encrypted Diplomatic Stream Live Chat participation"
+      ],
+      "ar": [
+        "وصول غير محدود لنماذج الاقتصاد القياسي الخاصة بالمقاصة الثنائية ونظام CIPS",
+        "موجزات استخباراتية أسبوعية من مكتبي بغداد وبكين الدائمين",
+        "مشاركة فورية في دردشة البث المباشر الدبلوماسي المشفر"
+      ],
+      "zh": [
+        "无限制查阅中伊双边本币清算与CIPS系统量化经济计量宏观模型库",
+        "获取巴格达与北京常驻分社独家定制的每周闭门战略情报要情",
+        "受邀进入端到端加密的高级别外交直播智库互动研讨室"
+      ],
+      "ckb": [
+        "دەستگەیشتنی تەواو بە مۆدێلە ئابوورییەکان و سیستەمی CIPS",
+        "ڕاپۆرتی هەفتانەی تایبەت لە نووسینگەکانی بەغدا و پەکینەوە",
+        "بەشداری لە چاتی پارێزراوی دیپلۆماسی بە شێوەی ڕاستەوخۆ"
+      ]
+    },
+    "isRecommended": false
+  },
+  {
+    "id": "test-tier-sovereign-executive",
+    "name": {
+      "en": "Sovereign Executive & Plenipotentiary",
+      "ar": "تنفيذي سيادي ومفوض استراتيجي",
+      "zh": "主权机构全权代表与跨国总裁会员",
+      "ckb": "بەڕێوەبەری باڵای سیادی و نوێنەری یاسایی"
+    },
+    "priceMonthly": "$249",
+    "priceAnnual": "$2,400",
+    "features": {
+      "en": [
+        "All Diplomatic Scholar tier privileges included",
+        "Direct bilateral advisory hotlines to Baghdad & Beijing Consular Desks",
+        "Unlimited raw CSV/JSON export of BRI corridor project trackers and trade flows",
+        "Dedicated personal bilateral concierge officer and sovereign tax invoicing"
+      ],
+      "ar": [
+        "تشمل كافة امتيازات رتبة الباحث الدبلوماسي",
+        "خطوط استشارية ثنائية مباشرة مع المكاتب القنصلية في بغداد وبكين",
+        "تصدير غير محدود لبيانات مشاريع طريق الحرير والتبادل التجاري بصيغتي CSV/JSON",
+        "مسؤول كونسيرج ثنائي شخصي وفواتير ضريبية سيادية معتمدة"
+      ],
+      "zh": [
+        "全权尊享外交学者会员层级的全部高端权限",
+        "直通巴格达与北京总领事馆级涉外法律与政策咨询极速专属通道",
+        "无限制批量导出'一带一路'中伊走廊全部重大项目底层原始数据与关税模型",
+        "一对一配备双语政企联络官与全套中伊增值税专用发票入账服务"
+      ],
+      "ckb": [
+        "هەموو سوودەکانی توێژەری دیپلۆماسی بەردەست دەبێت",
+        "هێڵی ڕاستەوخۆ لەگەڵ کونسوڵگەرییەکانی بەغدا و پەکین",
+        "داگرتنی بێسنووری هەموو داتاکانی بازرگانی و ژێرخان بە فایلی تایبەت",
+        "خزمەتگوزاری تایبەتی ڕاوێژکاری و هاوکاری دارایی"
+      ]
+    },
+    "isRecommended": true
+  }
+]

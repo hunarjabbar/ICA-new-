@@ -1,0 +1,299 @@
+{
+  "entities": {
+    "ContactSubmission": {
+      "title": "Contact Submission",
+      "description": "Information sent via the contact form",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the sender"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Email address of the sender"
+        },
+        "company": {
+          "type": "string",
+          "description": "Organization or company name"
+        },
+        "bureau": {
+          "type": "string",
+          "description": "Target bureau for the message"
+        },
+        "message": {
+          "type": "string",
+          "description": "The message text"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the submission"
+        }
+      },
+      "required": [
+        "name",
+        "email",
+        "company",
+        "bureau",
+        "message",
+        "timestamp"
+      ]
+    },
+    "NewsletterSubscriber": {
+      "title": "Newsletter Subscriber",
+      "description": "Email subscription for the newsletter",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Subscriber email address"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the subscription"
+        }
+      },
+      "required": [
+        "email",
+        "timestamp"
+      ]
+    },
+    "CulturalProgram": {
+      "title": "Cultural Exchange Program",
+      "description": "A specific academic or cultural exchange program",
+      "type": "object",
+      "properties": {
+        "titleEn": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "titleZh": { "type": "string" },
+        "titleCkb": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "descriptionAr": { "type": "string" },
+        "descriptionZh": { "type": "string" },
+        "descriptionCkb": { "type": "string" },
+        "detailsEn": { "type": "string" },
+        "detailsAr": { "type": "string" },
+        "detailsZh": { "type": "string" },
+        "detailsCkb": { "type": "string" },
+        "institutionName": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "applicationDeadline": { "type": "string" },
+        "eventDate": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "categorySlug": { "type": "string" },
+        "eligibility": { "type": "string" },
+        "slug": { "type": "string" }
+      },
+      "required": ["titleEn", "institutionName"]
+    },
+    "CulturalCategory": {
+      "title": "Cultural Program Category",
+      "description": "Category for cultural programs",
+      "type": "object",
+      "properties": {
+        "nameEn": { "type": "string" },
+        "nameAr": { "type": "string" },
+        "nameZh": { "type": "string" },
+        "nameCkb": { "type": "string" },
+        "slug": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["nameEn"]
+    },
+    "CulturalPartner": {
+      "title": "Cultural Partner",
+      "description": "A partner university or institution",
+      "type": "object",
+      "properties": {
+        "nameEn": { "type": "string" },
+        "nameAr": { "type": "string" },
+        "nameZh": { "type": "string" },
+        "nameCkb": { "type": "string" },
+        "locationEn": { "type": "string" },
+        "specialtyEn": { "type": "string" },
+        "mouScopeEn": { "type": "string" },
+        "mouScopeAr": { "type": "string" },
+        "mouScopeZh": { "type": "string" },
+        "mouScopeCkb": { "type": "string" },
+        "tierBadge": { "type": "string" }
+      },
+      "required": ["nameEn", "locationEn"]
+    },
+    "Application": {
+      "title": "Program Application",
+      "description": "A user application for a program",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "affiliation": { "type": "string" },
+        "trackType": { "type": "string" },
+        "programTarget": { "type": "string" },
+        "academicLevel": { "type": "string" },
+        "hskLevel": { "type": "string" },
+        "statement": { "type": "string" },
+        "status": { "type": "string" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["fullName", "email"]
+    },
+    "ChineseCourse": {
+      "title": "Chinese Course",
+      "description": "A course offered by the Chinese Centre",
+      "type": "object",
+      "properties": {
+        "titleEn": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "titleZh": { "type": "string" },
+        "titleCkb": { "type": "string" },
+        "level": { "type": "string" },
+        "type": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "durationEn": { "type": "string" },
+        "priceEn": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "isFeatured": { "type": "boolean" },
+        "order": { "type": "number" }
+      },
+      "required": ["titleEn", "level"]
+    },
+    "ChineseInstructor": {
+      "title": "Chinese Instructor",
+      "description": "An instructor at the Chinese Centre",
+      "type": "object",
+      "properties": {
+        "nameEn": { "type": "string" },
+        "nameAr": { "type": "string" },
+        "nameZh": { "type": "string" },
+        "nameCkb": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "bioEn": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "isFeatured": { "type": "boolean" },
+        "order": { "type": "number" }
+      },
+      "required": ["nameEn", "titleEn"]
+    },
+    "ChineseSession": {
+      "title": "Chinese Session",
+      "description": "An upcoming cohort or class session",
+      "type": "object",
+      "properties": {
+        "courseEn": { "type": "string" },
+        "startDateEn": { "type": "string" },
+        "scheduleEn": { "type": "string" },
+        "locationEn": { "type": "string" },
+        "totalCapacity": { "type": "number" },
+        "spotsRemaining": { "type": "number" }
+      },
+      "required": ["courseEn", "startDateEn"]
+    },
+    "ChineseTestingSession": {
+      "title": "Chinese Testing Session",
+      "description": "An HSK/HSKK testing session",
+      "type": "object",
+      "properties": {
+        "testType": { "type": "string" },
+        "level": { "type": "string" },
+        "testDate": { "type": "string" },
+        "registrationDeadline": { "type": "string" },
+        "locationEn": { "type": "string" },
+        "feeEn": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["testType", "testDate"]
+    },
+    "ChineseLevel": {
+      "title": "Chinese Level",
+      "description": "Definition of an HSK level",
+      "type": "object",
+      "properties": {
+        "level": { "type": "string" },
+        "slug": { "type": "string" },
+        "bandKey": { "type": "string" },
+        "words": { "type": "string" },
+        "hours": { "type": "string" },
+        "prereq": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["level", "slug"]
+    },
+    "ChineseTrack": {
+      "title": "Chinese Track",
+      "description": "Definition of a specialized Chinese track (e.g. Business)",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "icon": { "type": "string" },
+        "descKey": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["name", "slug"]
+    }
+  },
+  "firestore": {
+    "contact_submissions": {
+      "schema": "ContactSubmission",
+      "description": "Collection of contact form submissions"
+    },
+    "newsletter_subscribers": {
+      "schema": "NewsletterSubscriber",
+      "description": "Collection of newsletter email subscribers"
+    },
+    "cultural_programs": {
+      "schema": "CulturalProgram",
+      "description": "Bilateral exchange programs"
+    },
+    "cultural_categories": {
+      "schema": "CulturalCategory",
+      "description": "Categories for exchange programs"
+    },
+    "cultural_partners": {
+      "schema": "CulturalPartner",
+      "description": "Partner universities and institutions"
+    },
+    "chinese_courses": {
+      "schema": "ChineseCourse",
+      "description": "Courses offered by the Chinese Centre"
+    },
+    "chinese_instructors": {
+      "schema": "ChineseInstructor",
+      "description": "Instructors at the Chinese Centre"
+    },
+    "chinese_testing_sessions": {
+      "schema": "ChineseTestingSession",
+      "description": "Testing sessions at the Chinese Centre"
+    },
+    "chinese_sessions": {
+      "schema": "ChineseSession",
+      "description": "Upcoming class sessions and cohorts"
+    },
+    "chinese_levels": {
+      "schema": "ChineseLevel",
+      "description": "HSK level definitions"
+    },
+    "chinese_tracks": {
+      "schema": "ChineseTrack",
+      "description": "Specialized curriculum tracks"
+    },
+    "applications": {
+      "schema": "Application",
+      "description": "Program applications"
+    },
+    "inquiries": {
+      "schema": "ContactSubmission",
+      "description": "General inquiries"
+    },
+    "sections": {
+      "schema": "object",
+      "description": "Layout and configuration sections"
+    }
+  }
+}
+

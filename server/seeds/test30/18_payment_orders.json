@@ -1,0 +1,22 @@
+[
+  {
+    "reference": "PAY-2026-TEST-MBRIDGE-9921",
+    "orderType": "BUSINESS",
+    "direction": "IQD_TO_ECNY",
+    "sourceCurrency": "IQD",
+    "targetCurrency": "E_CNY",
+    "sourceAmount": 1885000000,
+    "targetAmount": 10000000,
+    "exchangeRate": 188.5,
+    "feeAmount": 6597500,
+    "feePercent": 0.35,
+    "status": "COMPLETED",
+    "senderName": "Al-Mansour Heavy Construction Contracting Ltd.",
+    "senderEmail": "finance@almansour-iraq.com",
+    "recipientName": "China State Construction Engineering Corp (CSCEC)",
+    "recipientIdentifier": "CN-MBRIDGE-WALLET-8849-1029",
+    "purpose": "COMMERCIAL_TRADE",
+    "settlementMethod": "MBRIDGE_CBDC",
+    "settlementTxHash": "0x8fa1b209c4819dfaa8201948bc9281a0398492048592819385928194859281a9"
+  }
+]

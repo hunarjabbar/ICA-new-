@@ -1,0 +1,27 @@
+[
+  {
+    "slug": "test-live-beijing-baghdad-trade-summit-2026",
+    "isActive": true,
+    "titleEn": "Baghdad-Beijing Plenipotentiary Economic Forum 2026 (Live Broadcast)",
+    "titleAr": "منتدى بغداد-بكين الاقتصادي المفوض 2026 (بث مباشر)",
+    "titleZh": "2026年巴格达-北京全权经贸高层论坛（全程实时直播）",
+    "titleCkb": "کۆڕبەندی ئابووریی باڵای بەغدا-پەکین ٢٠٢٦ (پەخشی ڕاستەوخۆ)",
+    "summaryEn": "Live bilateral transmission of ministerial deliberations and bilateral investment agreements signing.",
+    "summaryAr": "تغطية مباشرة للمباحثات الوزارية وتوقيع اتفاقيات الاستثمار الثنائية المشتركة.",
+    "summaryZh": "全程实时转播两国各部委双边高层闭门谈判及一揽子战略投资协议签署仪式。",
+    "summaryCkb": "پەخشی ڕاستەوخۆی کۆبوونەوەی وەزیرەکان و واژۆکردنی گرێبەستە هاوبەشەکان.",
+    "videoUrl": "https://www.w3schools.com/html/mov_bbb.mp4",
+    "region": "BILATERAL",
+    "category": "ECONOMY",
+    "updates": [
+      {
+        "contentEn": "Minister of Trade confirms $4.8B bilateral industrial park in Basra special zone.",
+        "contentAr": "وزير التجارة يؤكد تخصيص 4.8 مليار دولار للمدينة الصناعية في البصرة.",
+        "contentZh": "伊拉克贸易部长在讲话中确认，双方将在巴士拉特区联合建设价值48亿美元的中伊现代产业园。",
+        "contentCkb": "وەزیری بازرگانی تەرخانکردنی ٤.٨ ملیار دۆلاری بۆ شاری پیشەسازی لە بەسرە ڕاگەیاند.",
+        "isImportant": true,
+        "authorName": "Live Diplomatic Desk"
+      }
+    ]
+  }
+]
