@@ -56,8 +56,8 @@ export function Layout({ lang, children }: { lang: Locale; children: ReactNode }
   };
   
   useEffect(() => {
-    document.title = siteName;
-  }, [siteName]);
+    document.title = t('pageTitle') || siteName;
+  }, [t, siteName]);
 
   useEffect(() => {
     document.documentElement.classList.remove('dark');

@@ -367,6 +367,12 @@ function RenderWorldStories({ section, items, config, lang }: { section: PageSec
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {items.length === 0 && (
+            <div className="col-span-full py-12 text-center bg-white dark:bg-neutral-800 rounded-2xl border border-dashed border-neutral-300 dark:border-neutral-700">
+              <Globe className="mx-auto text-neutral-300 mb-2" size={32} />
+              <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest">Global strategic analysis reports pending publication...</p>
+            </div>
+          )}
           {items.map((it, idx) => {
             const fallbackTitle = lang === 'ar' ? 'ملف دبلوماسي' : lang === 'zh' ? '双边机要分析' : lang === 'ckb' ? 'شیکاری دیپلۆماسی' : 'Diplomatic Dossier';
             const title = getLocalizedText(it.title, lang, fallbackTitle);
@@ -466,6 +472,12 @@ function RenderStrategicInitiatives({ section, items, config, lang }: { section:
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {items.length === 0 && (
+            <div className="col-span-full py-12 text-center bg-white dark:bg-neutral-800 rounded-2xl border border-dashed border-neutral-300 dark:border-neutral-700">
+              <Layers className="mx-auto text-neutral-300 mb-2" size={32} />
+              <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest">Strategic initiatives data synchronization in progress...</p>
+            </div>
+          )}
           {items.map((it, idx) => {
             const fallbackInitiative = lang === 'ar' ? 'مبادرة استراتيجية' : lang === 'zh' ? '战略举措' : lang === 'ckb' ? 'دەستپێشخەری ستراتیژی' : 'Strategic Initiative';
             const title = getLocalizedText(it.title, lang, fallbackInitiative);
@@ -541,6 +553,12 @@ function RenderFeaturedPublications({ section, items, config, lang }: { section:
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {items.length === 0 && (
+            <div className="col-span-full py-12 text-center bg-neutral-50 dark:bg-neutral-900 rounded-2xl border border-dashed border-neutral-300 dark:border-neutral-700">
+              <BookOpen className="mx-auto text-neutral-300 mb-2" size={32} />
+              <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest">Academic research library indexing in progress...</p>
+            </div>
+          )}
           {items.map((it, idx) => {
             const fallbackTitle = lang === 'ar' ? 'دراسة بحثية' : lang === 'zh' ? '学术课题报告' : lang === 'ckb' ? 'توێژینەوە' : 'Research Study';
             const title = getLocalizedText(it.title, lang, fallbackTitle);
@@ -583,6 +601,12 @@ function RenderDataSnapshot({ section, items, config, lang }: { section: PageSec
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          {items.length === 0 && (
+            <div className="col-span-full py-12 text-center bg-white dark:bg-neutral-800 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800">
+              <LineChart className="mx-auto text-neutral-300 mb-2" size={32} />
+              <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest">Economic telemetry sensors initializing...</p>
+            </div>
+          )}
           {items.map((it, idx) => {
             const title = getLocalizedText(it.title, lang, '');
             const subtitle = getLocalizedText(it.subtitle, lang, '');
@@ -620,6 +644,12 @@ function RenderExpertSpotlight({ section, items, config, lang }: { section: Page
           </h2>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {items.length === 0 && (
+            <div className="col-span-full py-12 text-center bg-white dark:bg-neutral-900 rounded-2xl border border-dashed border-neutral-200 dark:border-neutral-800">
+              <Users className="mx-auto text-neutral-300 mb-2" size={32} />
+              <p className="text-xs text-neutral-400 font-bold uppercase tracking-widest">Diplomatic fellows accreditation in progress...</p>
+            </div>
+          )}
           {items.map((it, idx) => {
             const fallbackName = lang === 'ar' ? 'الخبير الدبلوماسي' : lang === 'zh' ? '特聘学者' : lang === 'ckb' ? 'پسپۆڕی باڵا' : 'Fellow Name';
             const fallbackTitle = lang === 'ar' ? 'زميل أكاديمي أول' : lang === 'zh' ? '资深特聘研究员' : lang === 'ckb' ? 'توێژەری باڵا' : 'Senior Fellow';

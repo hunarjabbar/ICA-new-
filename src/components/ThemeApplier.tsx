@@ -61,24 +61,6 @@ export function ThemeApplier() {
       console.warn("ThemeApplier style property error:", e);
     }
   }, [brandColor, inkColor, paperColor]);
-
-  // Dynamic Metadata Sync
-  const { locale } = useSiteStore();
-  useEffect(() => {
-    try {
-      const titles: Record<string, string> = {
-        en: 'Iraqi-Chinese Agency (ICA) — Official Sovereign Portal',
-        ar: 'الوكالة العراقية الصينية (ICA) — البوابة السيادية الرسمية',
-        zh: '中伊通讯社 (ICA) — 官方主权门户',
-        ckb: 'ئاژانسی عێراقی-چینی (ICA) — دەروازەی فەرمی'
-      };
-      document.title = titles[locale] || titles.en;
-      document.documentElement.lang = locale;
-      document.documentElement.dir = (locale === 'ar' || locale === 'ckb') ? 'rtl' : 'ltr';
-    } catch (e) {
-      console.warn("ThemeApplier title update error:", e);
-    }
-  }, [locale]);
   
   return null;
 }

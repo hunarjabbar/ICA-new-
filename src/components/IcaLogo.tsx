@@ -108,6 +108,7 @@ export function IcaLogo({
           fontWeight="900"
           fontSize="50"
           letterSpacing="0.5px"
+          dy=".35em"
         >
           ICA
         </text>

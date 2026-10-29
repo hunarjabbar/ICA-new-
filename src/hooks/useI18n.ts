@@ -3,6 +3,8 @@ import { newsroomTranslations, getNewsroomTranslation } from '../locales/portalT
 
 const dict = {
   en: {
+    pageTitle: 'Iraqi-Chinese Agency (ICA) — Official Sovereign Portal',
+    pageDescription: 'Official diplomatic and media gateway for the bilateral strategic corridor between Baghdad and Beijing.',
     news: 'News',
     politics: 'Politics',
     economy: 'Economy',
@@ -525,6 +527,8 @@ const dict = {
     'initiatives.card.culturalExchange.cta': 'Enter Cultural Exchange →',
   },
   ar: {
+    pageTitle: 'الوكالة العراقية الصينية (ICA) — البوابة السيادية الرسمية',
+    pageDescription: 'البوابة الدبلوماسية والإعلامية الرسمية للممر الاستراتيجي الثنائي بين بغداد وبكين.',
     news: 'أخبار',
     politics: 'سياسة',
     economy: 'اقتصاد',
@@ -975,6 +979,8 @@ const dict = {
     'initiatives.card.culturalExchange.cta': 'ادخل إلى التبادل الثقافي ←',
   },
   zh: {
+    pageTitle: '中伊通讯社 (ICA) — 官方主权门户',
+    pageDescription: '巴格达与北京双边战略走廊的官方外交与媒体门户。',
     news: '新闻',
     politics: '政治',
     economy: '经济',
@@ -1490,6 +1496,8 @@ const dict = {
     'initiatives.card.culturalExchange.cta': '进入文化交流 →',
   },
   ckb: {
+    pageTitle: 'ئاژانسی عێراقی-چینی (ICA) — دەروازەی فەرمی',
+    pageDescription: 'دەروازەی فەرمی دیپلۆماسی و میدیایی بۆ ڕێڕەوی ستراتیژی نێوان بەغداد و پەکین.',
     footerCopy: 'کۆپی',
     footerCopied: 'کۆپی کرا',
     footerEnlarge: 'کرتە بکە بۆ گەورەکردن',

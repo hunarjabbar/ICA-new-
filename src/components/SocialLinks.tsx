@@ -18,6 +18,7 @@ import {
   Send
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { Locale } from '../types';
 import { useSiteStore } from '../store/useSiteStore';
 import { BrandIcons } from './common/BrandIcons';
@@ -677,6 +678,12 @@ export function SocialFooterShowcase({ lang }: { lang: Locale }) {
               target="_blank"
               rel="noopener noreferrer"
               className="text-start block h-full focus:outline-none"
+              onClick={(e) => {
+                if (getUrl(item.key) === '#') {
+                  e.preventDefault();
+                  toast.info(lang === 'zh' ? '该频道即将开通' : lang === 'ar' ? 'هذه القناة سيتم تفعيلها قريباً' : 'This channel will be active soon');
+                }
+              }}
             >
               {CardContent}
             </a>

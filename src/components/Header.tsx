@@ -192,8 +192,8 @@ export const Header: React.FC<HeaderProps> = ({ lang, currentLocale, setLocale }
               to={`/${activeLocale}`} 
               className="flex items-center gap-3 sm:gap-4 group shrink-0 select-none py-1 min-w-0 h-full"
             >
-              <div className="shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 h-full py-1.5 sm:py-2">
-                <IcaLogo size={activeLocale === 'zh' ? 48 : 44} variant="mark" theme="white" className="h-full w-auto flex items-center self-center" />
+              <div className="shrink-0 flex items-center justify-center transition-transform duration-300 group-hover:scale-105 py-1.5 sm:py-2">
+                <IcaLogo size={activeLocale === 'zh' ? 48 : 44} variant="mark" theme="white" className="w-auto flex items-center" />
               </div>
 
               <div className="flex flex-col justify-center text-start leading-tight min-w-0 border-s border-white/20 ps-3 sm:ps-4 h-full py-2">
