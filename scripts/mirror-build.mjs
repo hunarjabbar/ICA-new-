@@ -18,6 +18,14 @@ fs.mkdirSync(buildPath, { recursive: true });
 // Copy everything from dist to build recursively
 fs.cpSync(distPath, buildPath, { recursive: true });
 
+// Copy index.html to 404.html in dist and build for SPA fallback on GitHub Pages / static hosting
+if (fs.existsSync(path.join(distPath, 'index.html'))) {
+  fs.copyFileSync(path.join(distPath, 'index.html'), path.join(distPath, '404.html'));
+}
+if (fs.existsSync(path.join(buildPath, 'index.html'))) {
+  fs.copyFileSync(path.join(buildPath, 'index.html'), path.join(buildPath, '404.html'));
+}
+
 // Ensure legacy chunk alias exists for CulturalExchangeLanding-Cl-hmI6h.js
 try {
   const distAssets = path.join(distPath, 'assets');
