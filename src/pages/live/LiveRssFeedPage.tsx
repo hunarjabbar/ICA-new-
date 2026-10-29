@@ -11,11 +11,13 @@ export function LiveRssFeedPage() {
   const [copied, setCopied] = useState(false);
   const media = portalStore.getMediaItems().filter(m => m.status === 'published');
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://ais-pre-qe3rvzzpbajs2krxvjofxc-748876913382.europe-west2.run.app';
+
   const rssXml = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
 <channel>
   <title>Iraqi-Chinese Agency (ICA) - Live & Media Hub Feed</title>
-  <link>https://iraq-china.agency/${currentLang}/live</link>
+  <link>${origin}/${currentLang}/live</link>
   <description>Bilateral streaming, documentary features, drama series, and cultural exchange productions.</description>
   <language>${currentLang}</language>
   <pubDate>${new Date().toUTCString()}</pubDate>
@@ -24,11 +26,11 @@ export function LiveRssFeedPage() {
       m => `
   <item>
     <title><![CDATA[${m.title[currentLang] || m.title.en}]]></title>
-    <link>https://iraq-china.agency/${currentLang}/live/${m.slug}</link>
+    <link>${origin}/${currentLang}/live/${m.slug}</link>
     <description><![CDATA[${m.description[currentLang] || m.description.en}]]></description>
     <category>${m.category}</category>
     <pubDate>${new Date(m.publishDate).toUTCString()}</pubDate>
-    <guid isPermaLink="true">https://iraq-china.agency/${currentLang}/live/${m.slug}</guid>
+    <guid isPermaLink="true">${origin}/${currentLang}/live/${m.slug}</guid>
     <author>${m.director}</author>
   </item>`
     )

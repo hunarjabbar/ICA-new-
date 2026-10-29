@@ -912,6 +912,10 @@ export function registerNewsroomRoutes(
   // Raw RSS 2.0 Feed
   app.get(["/newsroom/rss.xml", "/api/newsroom/feed/rss", "/:lang/newsroom/feed/rss.xml"], (req: Request, res: Response) => {
     const lang = (req.query.lang as string) || req.params.lang || "en";
+    const host = req.get("x-forwarded-host") || req.get("host") || "ais-pre-qe3rvzzpbajs2krxvjofxc-748876913382.europe-west2.run.app";
+    const proto = req.get("x-forwarded-proto") || req.protocol || "https";
+    const baseUrl = `${proto}://${host}`;
+
     const escapeXml = (unsafe: string) => unsafe.replace(/[<>&'"]/g, c => {
       switch (c) {
         case '<': return '&lt;';
@@ -930,13 +934,13 @@ export function registerNewsroomRoutes(
         const excerpt = typeof a.excerpt === "object" ? (a.excerpt[lang] || a.excerpt.en) : a.excerpt;
         const author = a.author?.name || "ICA Bureau Correspondent";
         const pubDate = new Date(a.publishDate || Date.now()).toUTCString();
-        const url = `https://iraq-china.agency/${lang}/newsroom/${a.slug}`;
+        const url = `${baseUrl}/${lang}/newsroom/${a.slug}`;
         return `    <item>
       <title>${escapeXml(title)}</title>
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${pubDate}</pubDate>
-      <author>desk@iraq-china.agency (${escapeXml(author)})</author>
+      <author>desk@iraqi-chineseagency.com (${escapeXml(author)})</author>
       <category>${escapeXml(a.category)}</category>
       <description>${escapeXml(excerpt)}</description>
     </item>`;
@@ -946,11 +950,11 @@ export function registerNewsroomRoutes(
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Iraqi-Chinese Agency (ICA) Official Newsroom Feed</title>
-    <link>https://iraq-china.agency/${lang}/newsroom</link>
+    <link>${baseUrl}/${lang}/newsroom</link>
     <description>Accredited sovereign dispatches and macroeconomic intelligence.</description>
     <language>${lang === "ck" ? "ckb" : lang}</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="https://iraq-china.agency/newsroom/rss.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="${baseUrl}/newsroom/rss.xml" rel="self" type="application/rss+xml"/>
 ${itemsXml}
   </channel>
 </rss>`;
@@ -962,6 +966,10 @@ ${itemsXml}
   // Raw Atom 1.0 Feed
   app.get(["/newsroom/atom.xml", "/api/newsroom/feed/atom", "/:lang/newsroom/feed/atom.xml"], (req: Request, res: Response) => {
     const lang = (req.query.lang as string) || req.params.lang || "en";
+    const host = req.get("x-forwarded-host") || req.get("host") || "ais-pre-qe3rvzzpbajs2krxvjofxc-748876913382.europe-west2.run.app";
+    const proto = req.get("x-forwarded-proto") || req.protocol || "https";
+    const baseUrl = `${proto}://${host}`;
+
     const escapeXml = (unsafe: string) => unsafe.replace(/[<>&'"]/g, c => {
       switch (c) {
         case '<': return '&lt;';
@@ -980,7 +988,7 @@ ${itemsXml}
         const excerpt = typeof a.excerpt === "object" ? (a.excerpt[lang] || a.excerpt.en) : a.excerpt;
         const author = a.author?.name || "ICA Bureau Correspondent";
         const pubDate = new Date(a.publishDate || Date.now()).toISOString();
-        const url = `https://iraq-china.agency/${lang}/newsroom/${a.slug}`;
+        const url = `${baseUrl}/${lang}/newsroom/${a.slug}`;
         return `  <entry>
     <title>${escapeXml(title)}</title>
     <link href="${url}"/>
@@ -995,9 +1003,9 @@ ${itemsXml}
     const xml = `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${lang === "ck" ? "ckb" : lang}">
   <title>Iraqi-Chinese Agency (ICA) Official Atom Syndication</title>
-  <link href="https://iraq-china.agency/${lang}/newsroom" rel="alternate"/>
-  <link href="https://iraq-china.agency/newsroom/atom.xml" rel="self" type="application/atom+xml"/>
-  <id>urn:uuid:iraq-china-newsroom-${lang}</id>
+  <link href="${baseUrl}/${lang}/newsroom" rel="alternate"/>
+  <link href="${baseUrl}/newsroom/atom.xml" rel="self" type="application/atom+xml"/>
+  <id>urn:uuid:iraqi-chinese-newsroom-${lang}</id>
   <updated>${new Date().toISOString()}</updated>
   <author><name>ICA Newsroom Editorial Desk</name></author>
 ${entriesXml}
@@ -1010,13 +1018,17 @@ ${entriesXml}
   // Raw JSON Feed 1.1
   app.get(["/newsroom/feed.json", "/api/newsroom/feed/json", "/:lang/newsroom/feed/feed.json"], (req: Request, res: Response) => {
     const lang = (req.query.lang as string) || req.params.lang || "en";
+    const host = req.get("x-forwarded-host") || req.get("host") || "ais-pre-qe3rvzzpbajs2krxvjofxc-748876913382.europe-west2.run.app";
+    const proto = req.get("x-forwarded-proto") || req.protocol || "https";
+    const baseUrl = `${proto}://${host}`;
+
     const items = newsroomArticlesFallback
       .filter(a => a.status === "PUBLISHED")
       .map(a => {
         const title = typeof a.title === "object" ? (a.title[lang] || a.title.en) : a.title;
         const excerpt = typeof a.excerpt === "object" ? (a.excerpt[lang] || a.excerpt.en) : a.excerpt;
         const content = typeof a.content === "object" ? (a.content[lang] || a.content.en) : (a.content || excerpt);
-        const url = `https://iraq-china.agency/${lang}/newsroom/${a.slug}`;
+        const url = `${baseUrl}/${lang}/newsroom/${a.slug}`;
         return {
           id: a.id,
           url,
@@ -1034,8 +1046,8 @@ ${entriesXml}
     const jsonFeed = {
       version: "https://jsonfeed.org/version/1.1",
       title: "Iraqi-Chinese Agency (ICA) Official Newsroom Feed",
-      home_page_url: `https://iraq-china.agency/${lang}/newsroom`,
-      feed_url: `https://iraq-china.agency/${lang}/newsroom/feed.json`,
+      home_page_url: `${baseUrl}/${lang}/newsroom`,
+      feed_url: `${baseUrl}/${lang}/newsroom/feed.json`,
       description: "Accredited sovereign dispatches and macroeconomic intelligence.",
       language: lang === "ck" ? "ckb" : lang,
       items
@@ -1056,14 +1068,18 @@ ${entriesXml}
       "/newsroom/sitemap"
     ];
 
+    const host = req.get("x-forwarded-host") || req.get("host") || "ais-pre-qe3rvzzpbajs2krxvjofxc-748876913382.europe-west2.run.app";
+    const proto = req.get("x-forwarded-proto") || req.protocol || "https";
+    const baseUrl = `${proto}://${host}`;
+
     const staticUrls = baseRoutes.flatMap(r =>
-      locales.map(l => `  <url>\n    <loc>https://iraq-china.agency/${l}${r}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>`)
+      locales.map(l => `  <url>\n    <loc>${baseUrl}/${l}${r}</loc>\n    <changefreq>daily</changefreq>\n    <priority>0.8</priority>\n  </url>`)
     ).join("\n");
 
     const articleUrls = newsroomArticlesFallback
       .filter(a => a.status === "PUBLISHED")
       .flatMap(a =>
-        locales.map(l => `  <url>\n    <loc>https://iraq-china.agency/${l}/newsroom/${a.slug}</loc>\n    <lastmod>${new Date(a.updatedAt || a.publishDate || Date.now()).toISOString().split('T')[0]}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>`)
+        locales.map(l => `  <url>\n    <loc>${baseUrl}/${l}/newsroom/${a.slug}</loc>\n    <lastmod>${new Date(a.updatedAt || a.publishDate || Date.now()).toISOString().split('T')[0]}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>`)
       ).join("\n");
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${staticUrls}\n${articleUrls}\n</urlset>`;

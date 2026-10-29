@@ -26,18 +26,20 @@ export function NewsroomFeedPage() {
       });
   }, []);
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://ais-pre-qe3rvzzpbajs2krxvjofxc-748876913382.europe-west2.run.app';
+
   const generateFeedContent = () => {
     if (feedType === "json") {
       return JSON.stringify(
         {
           version: "https://jsonfeed.org/version/1.1",
           title: "Iraqi-Chinese Agency (ICA) Official Newsroom Feed",
-          home_page_url: `https://iraq-china.agency/${currentLang}/newsroom`,
-          feed_url: `https://iraq-china.agency/${currentLang}/newsroom/feed/json`,
+          home_page_url: `${origin}/${currentLang}/newsroom`,
+          feed_url: `${origin}/${currentLang}/newsroom/feed/json`,
           description: "Accredited sovereign dispatches and macroeconomic intelligence.",
           items: articles.map(a => ({
             id: a.id,
-            url: `https://iraq-china.agency/${currentLang}/newsroom/${a.slug}`,
+            url: `${origin}/${currentLang}/newsroom/${a.slug}`,
             title: typeof a.title === "object" ? (a.title[currentLang] || a.title.en) : a.title,
             content_text: typeof a.excerpt === "object" ? (a.excerpt[currentLang] || a.excerpt.en) : a.excerpt,
             date_published: new Date(a.publishDate || "2026-04-10").toISOString(),
@@ -53,14 +55,14 @@ export function NewsroomFeedPage() {
       return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Iraqi-Chinese Agency (ICA) Official Atom Syndication</title>
-  <link href="https://iraq-china.agency/${currentLang}/newsroom"/>
+  <link href="${origin}/${currentLang}/newsroom"/>
   <updated>${new Date().toISOString()}</updated>
   <id>urn:uuid:iraq-china-newsroom-${currentLang}</id>
   ${articles
     .map(
       a => `  <entry>
     <title>${typeof a.title === "object" ? (a.title[currentLang] || a.title.en) : a.title}</title>
-    <link href="https://iraq-china.agency/${currentLang}/newsroom/${a.slug}"/>
+    <link href="${origin}/${currentLang}/newsroom/${a.slug}"/>
     <id>urn:uuid:${a.id}</id>
     <updated>${new Date(a.publishDate || "2026-04-10").toISOString()}</updated>
     <summary>${typeof a.excerpt === "object" ? (a.excerpt[currentLang] || a.excerpt.en) : a.excerpt}</summary>
@@ -76,7 +78,7 @@ export function NewsroomFeedPage() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
   <title>Iraqi-Chinese Agency (ICA) Official Newsroom Wire</title>
-  <link>https://iraq-china.agency/${currentLang}/newsroom</link>
+  <link>${origin}/${currentLang}/newsroom</link>
   <description>Accredited sovereign dispatches and macroeconomic intelligence.</description>
   <language>${currentLang}</language>
   <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
@@ -84,10 +86,10 @@ export function NewsroomFeedPage() {
     .map(
       a => `  <item>
     <title>${typeof a.title === "object" ? (a.title[currentLang] || a.title.en) : a.title}</title>
-    <link>https://iraq-china.agency/${currentLang}/newsroom/${a.slug}</link>
+    <link>${origin}/${currentLang}/newsroom/${a.slug}</link>
     <description>${typeof a.excerpt === "object" ? (a.excerpt[currentLang] || a.excerpt.en) : a.excerpt}</description>
     <pubDate>${new Date(a.publishDate || "2026-04-10").toUTCString()}</pubDate>
-    <guid>https://iraq-china.agency/${currentLang}/newsroom/${a.slug}</guid>
+    <guid>${origin}/${currentLang}/newsroom/${a.slug}</guid>
   </item>`
     )
     .join("\n")}
