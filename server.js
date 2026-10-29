@@ -12,60 +12,25 @@ var __export = (target, all) => {
 import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
-function isValidSqliteDb(filePath) {
-  try {
-    return fs.existsSync(filePath) && fs.statSync(filePath).size > 10240;
-  } catch {
-    return false;
-  }
-}
-var targetDb, sourceDb, prisma;
+var prisma;
 var init_db = __esm({
   "server/db.ts"() {
     "use strict";
     if (!process.env.DATABASE_URL) {
-      const isProd = process.env.NODE_ENV === "production" || !!process.env.PORT;
+      const isProd = process.env.NODE_ENV === "production" || process.env.PORT;
       process.env.DATABASE_URL = isProd ? "file:/tmp/dev2.db" : "file:./prisma/dev2.db";
     }
-    targetDb = "/tmp/dev2.db";
-    sourceDb = path.join(process.cwd(), "prisma/dev2.db");
-    try {
-      if (process.env.DATABASE_URL?.includes("/tmp/")) {
-        if (isValidSqliteDb(sourceDb)) {
-          if (!isValidSqliteDb(targetDb)) {
-            fs.copyFileSync(sourceDb, targetDb);
-            console.log("[PrismaDB] Copied populated prisma/dev2.db to /tmp/dev2.db");
-          }
-        } else if (!isValidSqliteDb(targetDb)) {
-          console.log("[PrismaDB] Synchronizing SQLite database schema for /tmp/dev2.db...");
-          execSync("npx prisma db push --skip-generate", {
-            env: { ...process.env, DATABASE_URL: "file:/tmp/dev2.db" },
-            stdio: "pipe"
-          });
-          console.log("[PrismaDB] Database schema synchronized successfully.");
-          try {
-            fs.copyFileSync(targetDb, sourceDb);
-          } catch {
-          }
+    if (process.env.DATABASE_URL?.includes("/tmp/")) {
+      try {
+        const targetDb = "/tmp/dev2.db";
+        const sourceDb = path.join(process.cwd(), "prisma/dev2.db");
+        if (!fs.existsSync(targetDb) && fs.existsSync(sourceDb)) {
+          fs.copyFileSync(sourceDb, targetDb);
+          console.log("[PrismaDB] Copied prisma/dev2.db to /tmp/dev2.db for writable Cloud Run execution.");
         }
-      } else {
-        const localDbPath = path.resolve(process.env.DATABASE_URL.replace("file:", ""));
-        if (!isValidSqliteDb(localDbPath)) {
-          if (isValidSqliteDb(sourceDb) && localDbPath !== sourceDb) {
-            fs.copyFileSync(sourceDb, localDbPath);
-          } else {
-            console.log(`[PrismaDB] Synchronizing SQLite database schema for ${localDbPath}...`);
-            execSync("npx prisma db push --skip-generate", {
-              env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL },
-              stdio: "pipe"
-            });
-            console.log("[PrismaDB] Database schema synchronized successfully.");
-          }
-        }
+      } catch (e) {
+        console.error("[PrismaDB] Error setting up /tmp database copy:", e);
       }
-    } catch (e) {
-      console.error("[PrismaDB] Error setting up database:", e);
     }
     prisma = new PrismaClient();
   }
@@ -1683,8 +1648,8 @@ var init_aiSeedGenerator = __esm({
 // server.ts
 init_db2();
 import express from "express";
-import path6 from "path";
-import fs6 from "fs";
+import path5 from "path";
+import fs5 from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI as GoogleGenAI3, Type as Type2 } from "@google/genai";
 
@@ -3302,11 +3267,11 @@ function registerHubRoutes(app) {
     });
   });
   app.post("/api/hub/revalidate", (req, res) => {
-    const { path: path7, tag } = req.body;
-    recordAudit(req, "revalidate_cache", "Cache", tag || path7, null, { path: path7, tag, revalidatedAt: (/* @__PURE__ */ new Date()).toISOString() });
+    const { path: path6, tag } = req.body;
+    recordAudit(req, "revalidate_cache", "Cache", tag || path6, null, { path: path6, tag, revalidatedAt: (/* @__PURE__ */ new Date()).toISOString() });
     res.json({
       revalidated: true,
-      path: path7 || "all",
+      path: path6 || "all",
       tag: tag || "global-content",
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     });
@@ -3457,15 +3422,15 @@ function registerHubRoutes(app) {
   app.get("/api/hub/test-seeds/catalog", async (_req, res) => {
     try {
       const { SEED_DIR: SEED_DIR2 } = await Promise.resolve().then(() => (init_testSeedRunner(), testSeedRunner_exports)).catch(() => ({ SEED_DIR: "" }));
-      const fs7 = await import("fs");
-      const path7 = await import("path");
-      const targetDir = path7.join(process.cwd(), "server", "seeds", "test30");
-      if (!fs7.existsSync(targetDir)) {
+      const fs6 = await import("fs");
+      const path6 = await import("path");
+      const targetDir = path6.join(process.cwd(), "server", "seeds", "test30");
+      if (!fs6.existsSync(targetDir)) {
         return res.json({ success: true, files: [], totalFiles: 0 });
       }
-      const files = fs7.readdirSync(targetDir).filter((f) => f.endsWith(".json"));
+      const files = fs6.readdirSync(targetDir).filter((f) => f.endsWith(".json"));
       const catalog = files.map((file, index) => {
-        const content = JSON.parse(fs7.readFileSync(path7.join(targetDir, file), "utf-8"));
+        const content = JSON.parse(fs6.readFileSync(path6.join(targetDir, file), "utf-8"));
         const count = Array.isArray(content) ? content.length : content.programs ? content.programs.length : Object.keys(content).length;
         return {
           id: `seed-${index + 1}`,
@@ -3937,13 +3902,15 @@ var CANONICAL_SECTION_REGISTRY = {
 // server/compositionSeeder.ts
 async function seedCompositionEngine() {
   console.log("[CompositionSeeder] Checking Page and Section tables...");
-  console.log("[CompositionSeeder] Seeding/Syncing default Home Page and 15 Canonical Sections...");
-  const homePage = await prisma.page.upsert({
-    where: { id: "page_home_primary" },
-    update: {
-      status: "published"
-    },
-    create: {
+  const existingPages = await prisma.page.count();
+  if (existingPages > 0) {
+    console.log(`[CompositionSeeder] ${existingPages} pages already exist. Ensuring templates exist...`);
+    await seedTemplatesOnly();
+    return;
+  }
+  console.log("[CompositionSeeder] Seeding default Home Page and 15 Canonical Sections...");
+  const homePage = await prisma.page.create({
+    data: {
       id: "page_home_primary",
       slug: "home",
       path: "/",
@@ -3966,27 +3933,6 @@ async function seedCompositionEngine() {
     }
   });
   await seedTemplatesOnly();
-  const existingSections = await prisma.pageSection.findMany({ where: { pageId: homePage.id } });
-  for (const s of existingSections) {
-    if (s.type && CANONICAL_SECTION_REGISTRY[s.type]) {
-      const regDef = CANONICAL_SECTION_REGISTRY[s.type];
-      const isPlainString = s.name && !s.name.trim().startsWith("{");
-      if (isPlainString) {
-        await prisma.pageSection.update({
-          where: { id: s.id },
-          data: {
-            name: JSON.stringify(regDef.name),
-            localeOverride: JSON.stringify(regDef.name)
-          }
-        });
-      }
-    }
-  }
-  const existingSectionsCount = existingSections.length;
-  if (existingSectionsCount >= 15) {
-    console.log(`[CompositionSeeder] ${existingSectionsCount} sections already exist on Home Page and localized. Skipping bulk seed.`);
-    return;
-  }
   const canonicalTypes = [
     {
       type: "hero",
@@ -4349,8 +4295,7 @@ async function seedCompositionEngine() {
             ckb: "\u062F\u06C6\u06A9\u06CC\u06C6\u0645\u06CE\u0646\u062A\u0627\u0631\u06CC: \u0695\u06CE\u06AF\u0627\u06CC \u0626\u0627\u0648\u0631\u06CC\u0634\u0645\u06CC \u0626\u0627\u0633\u0646\u06CC\u0646 \u0628\u06D5\u0633\u06D5\u0631 \u062F\u06CC\u062C\u0644\u06D5 \u0648 \u0641\u0648\u0631\u0627\u062A"
           },
           subtitle: { en: "Full 4K Cinematic Co-Production", ar: "\u0625\u0646\u062A\u0627\u062C \u0633\u064A\u0646\u0645\u0627\u0626\u064A \u0645\u0634\u062A\u0631\u0643 \u0641\u0627\u0626\u0642 \u0627\u0644\u062F\u0642\u0629 4K", zh: "\u4E2D\u4F0A\u878D\u5A92\u4F53\u8054\u5408\u51FA\u54C1 4K\u5168\u753B\u5E45\u8D85\u9AD8\u6E05", ckb: "\u0628\u06D5\u0631\u0647\u06D5\u0645\u06CC \u0647\u0627\u0648\u0628\u06D5\u0634\u06CC 4K" },
-          ctaHref: "/media",
-          image: "https://images.unsplash.com/photo-1541888946425-d0fbb1861564?auto=format&fit=crop&w=1200&q=80"
+          ctaHref: "/media"
         },
         {
           title: {
@@ -4360,8 +4305,7 @@ async function seedCompositionEngine() {
             ckb: "\u062F\u06CC\u062F\u0627\u0631\u06CC \u062A\u0627\u06CC\u0628\u06D5\u062A: \u0648\u06D5\u0632\u06CC\u0631\u06CC \u06AF\u0648\u0627\u0633\u062A\u0646\u06D5\u0648\u06D5 \u062F\u06D5\u0631\u0628\u0627\u0631\u06D5\u06CC \u06A9\u06D5\u0646\u0627\u06B5\u06CC \u0648\u0634\u06A9\u0627\u0646\u06CC \u0641\u0627\u0648"
           },
           subtitle: { en: "Exclusive Bilateral Televised Special", ar: "\u062D\u0644\u0642\u0629 \u062A\u0644\u0641\u0632\u064A\u0648\u0646\u064A\u0629 \u062E\u0627\u0635\u0629 \u0648\u062D\u0635\u0631\u064A\u0629", zh: "\u72EC\u5BB6\u6DF1\u5EA6\u5BF9\u8BDD\u680F\u76EE", ckb: "\u0628\u06D5\u0631\u0646\u0627\u0645\u06D5\u06CC \u062A\u0627\u06CC\u0628\u06D5\u062A\u06CC \u062A\u06D5\u0644\u06D5\u0641\u0632\u06CC\u06C6\u0646\u06CC" },
-          ctaHref: "/media",
-          image: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1200&q=80"
+          ctaHref: "/media"
         },
         {
           title: {
@@ -4371,8 +4315,7 @@ async function seedCompositionEngine() {
             ckb: "\u062A\u06C6\u0645\u0627\u0631\u06CC \u06A9\u06D5\u0644\u062A\u0648\u0648\u0631\u06CC: \u0644\u06D5 \u0686\u0627\u0646\u06AF\u0627\u0646 \u062A\u0627 \u0628\u06D5\u063A\u062F\u0627 \u0644\u06D5 \u062F\u0648\u0648 \u0647\u06D5\u0632\u0627\u0631 \u0633\u0627\u06B5\u062F\u0627"
           },
           subtitle: { en: "Historical Fellowship Series", ar: "\u0633\u0644\u0633\u0644\u0629 \u062F\u0631\u0627\u0633\u0627\u062A \u0648\u0623\u0641\u0644\u0627\u0645 \u062A\u0627\u0631\u064A\u062E\u064A\u0629", zh: "\u56FD\u5BB6\u7EA7\u5386\u53F2\u4EBA\u6587\u4E13\u9898\u5C55\u64AD", ckb: "\u0632\u0646\u062C\u06CC\u0631\u06D5\u06CC \u0645\u06CE\u0698\u0648\u0648\u06CC\u06CC \u0647\u0627\u0648\u0628\u06D5\u0634" },
-          ctaHref: "/media",
-          image: "https://images.unsplash.com/photo-1508807526345-15e9b5f4eaff?auto=format&fit=crop&w=1200&q=80"
+          ctaHref: "/media"
         }
       ]
     },
@@ -4489,12 +4432,12 @@ async function seedCompositionEngine() {
       data: {
         pageId: homePage.id,
         type: sectionDef.type,
-        name: JSON.stringify(registryInfo?.name || { en: sectionDef.name }),
+        name: sectionDef.name,
         displayOrder: i + 1,
         visibility: "visible",
         config: JSON.stringify(registryInfo?.defaultConfig || {}),
         styleOverride: JSON.stringify({}),
-        localeOverride: JSON.stringify(registryInfo?.name || {}),
+        localeOverride: JSON.stringify({}),
         status: "published",
         createdBy: "system_seeder",
         updatedBy: "system_seeder"
@@ -4568,8 +4511,8 @@ async function seedTemplatesOnly() {
 // server/compositionRoutes.ts
 init_db2();
 function triggerRevalidation(paths = ["/en", "/ar", "/zh", "/ckb"], tags = ["sections", "homepage"]) {
-  for (const path7 of paths) {
-    console.log(`[ISR] revalidatePath("${path7}") -> Composition Synced`);
+  for (const path6 of paths) {
+    console.log(`[ISR] revalidatePath("${path6}") -> Composition Synced`);
   }
   for (const tag of tags) {
     console.log(`[ISR] revalidateTag("${tag}") -> Cache Purged`);
@@ -4666,11 +4609,11 @@ function registerCompositionRoutes(app, editorOrAdminMiddleware, adminMiddleware
       return res.status(403).json({ error: "Forbidden: Viewer cannot create pages" });
     }
     try {
-      const { slug, path: path7, title, description, pillar, status } = req.body;
+      const { slug, path: path6, title, description, pillar, status } = req.body;
       const page = await prisma.page.create({
         data: {
           slug,
-          path: path7,
+          path: path6,
           title: typeof title === "object" ? JSON.stringify(title) : title || "{}",
           description: typeof description === "object" ? JSON.stringify(description) : description || "{}",
           pillar: pillar || "GENERAL",
@@ -4693,12 +4636,12 @@ function registerCompositionRoutes(app, editorOrAdminMiddleware, adminMiddleware
     }
     try {
       const { id } = req.params;
-      const { slug, path: path7, title, description, pillar, status } = req.body;
+      const { slug, path: path6, title, description, pillar, status } = req.body;
       const updated = await prisma.page.update({
         where: { id },
         data: {
           ...slug && { slug },
-          ...path7 && { path: path7 },
+          ...path6 && { path: path6 },
           ...title !== void 0 && { title: typeof title === "object" ? JSON.stringify(title) : title },
           ...description !== void 0 && { description: typeof description === "object" ? JSON.stringify(description) : description },
           ...pillar && { pillar },
@@ -4986,20 +4929,18 @@ function registerCompositionRoutes(app, editorOrAdminMiddleware, adminMiddleware
       if (!Array.isArray(orderMap)) {
         return res.status(400).json({ error: "Invalid orderMap array" });
       }
-      await prisma.$transaction(
-        orderMap.map(
-          (item) => prisma.pageSection.update({
-            where: { id: item.id },
-            data: { displayOrder: item.displayOrder }
-          })
-        )
-      );
+      for (const item of orderMap) {
+        await prisma.pageSection.update({
+          where: { id: item.id },
+          data: { displayOrder: item.displayOrder }
+        });
+      }
       await logMutationAudit(req, "REORDER_PAGE_SECTIONS", "PageSection", "batch", `Reordered ${orderMap.length} sections`);
       triggerRevalidation();
       res.json({ success: true, count: orderMap.length });
     } catch (e) {
-      console.error("[CompositionRoutes] Reorder error:", e);
-      res.status(500).json({ error: "Failed to reorder sections", details: e?.message });
+      console.error(e);
+      res.status(500).json({ error: "Failed to reorder sections" });
     }
   });
   app.post("/api/hub/composition/sections/:sectionId/items", async (req, res) => {
@@ -5432,28 +5373,11 @@ function registerFooterRoutes(app) {
         });
       }
       if (!config) {
-        await seedFooterData();
-        config = await prisma.footerConfig.findFirst({
-          include: {
-            columns: {
-              where: { status: "PUBLISHED" },
-              orderBy: { displayOrder: "asc" },
-              include: {
-                links: {
-                  where: { status: "PUBLISHED" },
-                  orderBy: { displayOrder: "asc" }
-                }
-              }
-            }
-          }
-        });
-      }
-      if (!config) {
         return res.json(DEFAULT_FOOTER_CONFIG);
       }
       res.json(config);
     } catch (err) {
-      console.warn("[API] Transient issue fetching public footer, returning canonical default:", err?.message || err);
+      console.error("[API] Error fetching public footer:", err);
       res.json(DEFAULT_FOOTER_CONFIG);
     }
   });
@@ -6215,46 +6139,6 @@ function registerInstituteRoutes(app, editorOrAdminMiddleware, adminMiddleware, 
     }
     return true;
   };
-  app.get("/api/public/institute/overview", async (_req, res) => {
-    try {
-      const [pillarsCount, expertsCount, pubsCount, eventsCount, projectsCount, coursesCount] = await Promise.all([
-        prisma.cisePillar.count({ where: { status: "PUBLISHED" } }),
-        prisma.ciseExpert.count({ where: { status: "PUBLISHED" } }),
-        prisma.cisePublication.count({ where: { status: "PUBLISHED" } }),
-        prisma.ciseEvent.count({ where: { status: "PUBLISHED" } }),
-        prisma.ciseProject.count({ where: { status: "PUBLISHED" } }),
-        prisma.ciseCourse.count({ where: { status: "PUBLISHED" } })
-      ]);
-      res.json({
-        pillarsCount: pillarsCount || DEFAULT_CISE_PILLARS.length,
-        expertsCount: expertsCount || DEFAULT_CISE_EXPERTS.length,
-        pubsCount: pubsCount || DEFAULT_CISE_PUBLICATIONS.length,
-        eventsCount: eventsCount || DEFAULT_CISE_EVENTS.length,
-        projectsCount: projectsCount || DEFAULT_CISE_PROJECTS.length,
-        coursesCount: coursesCount || DEFAULT_CISE_COURSES.length,
-        systemStatus: "ONLINE",
-        provenance: "Official CISE Intelligence Desk",
-        annualDataPoints: "142,500+",
-        bilateralTreatiesTracked: 18,
-        lastSync: (/* @__PURE__ */ new Date()).toISOString()
-      });
-    } catch (e) {
-      console.error("Error fetching public institute overview:", e);
-      res.json({
-        pillarsCount: DEFAULT_CISE_PILLARS.length,
-        expertsCount: DEFAULT_CISE_EXPERTS.length,
-        pubsCount: DEFAULT_CISE_PUBLICATIONS.length,
-        eventsCount: DEFAULT_CISE_EVENTS.length,
-        projectsCount: DEFAULT_CISE_PROJECTS.length,
-        coursesCount: DEFAULT_CISE_COURSES.length,
-        systemStatus: "ONLINE",
-        provenance: "Official CISE Intelligence Desk",
-        annualDataPoints: "142,500+",
-        bilateralTreatiesTracked: 18,
-        lastSync: (/* @__PURE__ */ new Date()).toISOString()
-      });
-    }
-  });
   app.get("/api/public/institute/pillars", async (_req, res) => {
     try {
       let pillars = await prisma.cisePillar.findMany({
@@ -8788,11 +8672,7 @@ function readJsonFile(filePath, defaultData) {
   } catch (e) {
     console.error(`Error reading ${filePath}:`, e);
   }
-  try {
-    fs4.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
-  } catch (err) {
-    console.error(`Error writing default to ${filePath}:`, err);
-  }
+  fs4.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
   return defaultData;
 }
 function writeJsonFile(filePath, data) {
@@ -8971,142 +8851,8 @@ var INITIAL_DOSSIERS = [
     assignedOfficer: "Attach\xE9 Tariq Nadir (Consular Fast-Track)"
   }
 ];
-var INITIAL_AGENDA = [
-  {
-    id: "session-1",
-    day: 1,
-    date: "2026-10-18",
-    timeStart: "09:00",
-    timeEnd: "11:30",
-    hall: "Grand Plenary Hall (Fairground)",
-    track: "Diplomatic & Strategic Plenary",
-    titleEn: "Opening Plenary: Decade of the Comprehensive Strategic Partnership (2015\u20132025+)",
-    titleAr: "\u0627\u0644\u062C\u0644\u0633\u0629 \u0627\u0644\u0627\u0641\u062A\u062A\u0627\u062D\u064A\u0629 \u0627\u0644\u0639\u0627\u0645\u0629: \u0639\u0642\u062F \u0645\u0646 \u0627\u0644\u0634\u0631\u0627\u0643\u0629 \u0627\u0644\u0627\u0633\u062A\u0631\u0627\u062A\u064A\u062C\u064A\u0629 \u0627\u0644\u0634\u0627\u0645\u0644\u0629 \u0628\u064A\u0646 \u0627\u0644\u0639\u0631\u0627\u0642 \u0648\u0627\u0644\u0635\u064A\u0646",
-    titleZh: "\u5F00\u5E55\u5168\u4F1A\uFF1A\u4E2D\u4F0A\u5EFA\u7ACB\u6218\u7565\u4F19\u4F34\u5173\u7CFB\u5341\u5468\u5E74\uFF082015-2025+\uFF09",
-    titleCkb: "\u062F\u0627\u0646\u06CC\u0634\u062A\u0646\u06CC \u062F\u06D5\u0633\u062A\u067E\u06CE\u06A9\u06CC \u06AF\u0634\u062A\u06CC: \u062F\u06D5 \u0633\u0627\u06B5 \u0644\u06D5 \u0647\u0627\u0648\u0628\u06D5\u0634\u06CC\u06CC \u0633\u062A\u0631\u0627\u062A\u06CC\u0698\u06CC \u06AF\u0634\u062A\u06AF\u06CC\u0631",
-    speakers: ["H.E. Prime Minister of Iraq (Representative)", "H.E. Ambassador of the People's Republic of China", "President of Kurdistan Region"],
-    moderator: "Dr. Hunar Jabbar (CISE Institute Director)",
-    status: "CONFIRMED"
-  },
-  {
-    id: "session-2",
-    day: 1,
-    date: "2026-10-18",
-    timeStart: "13:30",
-    timeEnd: "15:45",
-    hall: "Hall A: Strategic Energy & Petrochem",
-    track: "Energy & Infrastructure",
-    titleEn: "Belt & Road Infrastructure: Energy Transition, Upstream EPC & Modern Refineries",
-    titleAr: "\u0628\u0646\u064A\u0629 \u0627\u0644\u062D\u0632\u0627\u0645 \u0648\u0627\u0644\u0637\u0631\u064A\u0642 \u0627\u0644\u062A\u062D\u062A\u064A\u0629: \u062A\u062D\u0648\u0644 \u0627\u0644\u0637\u0627\u0642\u0629\u060C \u0639\u0642\u0648\u062F \u0627\u0644\u0647\u0646\u062F\u0633\u0629 \u0648\u0627\u0644\u062A\u0648\u0631\u064A\u062F\u060C \u0648\u062A\u0637\u0648\u064A\u0631 \u0627\u0644\u0645\u0635\u0627\u0641\u064A",
-    titleZh: "\u201C\u4E00\u5E26\u4E00\u8DEF\u201D\u57FA\u7840\u8BBE\u65BD\uFF1A\u80FD\u6E90\u8F6C\u578B\u3001\u4E0A\u6E38\u5DE5\u7A0BEPC\u603B\u627F\u5305\u4E0E\u70BC\u5382\u5347\u7EA7",
-    titleCkb: "\u0698\u06CE\u0631\u062E\u0627\u0646\u06CC \u06CC\u06D5\u06A9 \u067E\u0634\u062A\u06CE\u0646 \u06CC\u06D5\u06A9 \u0695\u06CE\u06AF\u06D5: \u06AF\u06C6\u0695\u0627\u0646\u06CC \u0648\u0632\u06D5\u060C \u067E\u0695\u06C6\u0698\u06D5\u06A9\u0627\u0646\u06CC \u0626\u06D5\u0646\u062F\u0627\u0632\u06CC\u0627\u0631\u06CC \u0648 \u067E\u0627\u06B5\u0627\u0648\u06AF\u06D5\u06A9\u0627\u0646",
-    speakers: ["Sinopec Middle East Vice President", "Iraqi Ministry of Oil Director General", "PetroChina Middle East Exploration Head"],
-    moderator: "Prof. Zhang Wei (Tsinghua University)",
-    status: "CONFIRMED"
-  },
-  {
-    id: "session-3",
-    day: 2,
-    date: "2026-10-19",
-    timeStart: "10:00",
-    timeEnd: "12:30",
-    hall: "Hall C: Bilateral Finance & Logistics",
-    track: "Finance & Clearing",
-    titleEn: "Direct Currency Settlement: CIPS, mBridge Multi-CBDC & Direct IQD \u21C4 RMB Rails",
-    titleAr: "\u0627\u0644\u062A\u0633\u0648\u064A\u0629 \u0627\u0644\u0645\u0628\u0627\u0634\u0631\u0629 \u0628\u0627\u0644\u0639\u0645\u0644\u0627\u062A \u0627\u0644\u0648\u0637\u0646\u064A\u0629: \u0623\u0646\u0638\u0645\u0629 CIPS \u0648mBridge \u0648\u0645\u0633\u0627\u0631 \u0627\u0644\u062F\u064A\u0646\u0627\u0631 \u0648\u0627\u0644\u064A\u0648\u0627\u0646 \u0627\u0644\u0645\u0628\u0627\u0634\u0631",
-    titleZh: "\u53CC\u8FB9\u672C\u5E01\u6E05\u7B97\u76F4\u901A\uFF1ACIPS\u7CFB\u7EDF\u3001mBridge\u592E\u884C\u6570\u5B57\u8D27\u5E01\u4E0E\u4F0A\u7B2C\u7EB3\u5C14/\u4EBA\u6C11\u5E01\u76F4\u8054",
-    titleCkb: "\u067E\u0627\u06A9\u062A\u0627\u0648\u06CC \u0695\u0627\u0633\u062A\u06D5\u0648\u062E\u06C6\u06CC \u062F\u0631\u0627\u0648\u06CC \u0646\u06CC\u0634\u062A\u0645\u0627\u0646\u06CC: \u0633\u06CC\u0633\u062A\u06D5\u0645\u06CC CIPS \u0648 \u0645Bridge \u0648 \u062F\u06CC\u0646\u0627\u0631-\u06CC\u0648\u0627\u0646",
-    speakers: ["Central Bank of Iraq (CBI) Deputy Governor", "Bank of China Middle East Chief Executive", "PBOC Clearing House Delegate"],
-    moderator: "Counselor H. Barzanji (CISE Financial Desk)",
-    status: "CONFIRMED"
-  },
-  {
-    id: "session-4",
-    day: 2,
-    date: "2026-10-19",
-    timeStart: "14:00",
-    timeEnd: "16:30",
-    hall: "Hall B: Digital Tech & Life Sciences",
-    track: "Digital & Sourcing",
-    titleEn: "Digital Economy & Smart Industry: 5G Industrial Parks & Smart Cities in Iraq",
-    titleAr: "\u0627\u0644\u0627\u0642\u062A\u0635\u0627\u062F \u0627\u0644\u0631\u0642\u0645\u064A \u0648\u0627\u0644\u0635\u0646\u0627\u0639\u0629 \u0627\u0644\u0630\u0643\u064A\u0629: \u0645\u062C\u0645\u0639\u0627\u062A \u0627\u0644\u062C\u064A\u0644 \u0627\u0644\u062E\u0627\u0645\u0633 \u0648\u0627\u0644\u0645\u062F\u0646 \u0627\u0644\u0630\u0643\u064A\u0629 \u0641\u064A \u0627\u0644\u0639\u0631\u0627\u0642",
-    titleZh: "\u6570\u5B57\u7ECF\u6D4E\u4E0E\u667A\u80FD\u5DE5\u4E1A\uFF1A5G\u667A\u6167\u5DE5\u4E1A\u56ED\u4E0E\u4F0A\u62C9\u514B\u672A\u6765\u667A\u6167\u57CE\u5E02\u5EFA\u8BBE",
-    titleCkb: "\u0626\u0627\u0628\u0648\u0648\u0631\u06CC \u062F\u06CC\u062C\u06CC\u062A\u0627\u06B5\u06CC \u0648 \u067E\u06CC\u0634\u06D5\u0633\u0627\u0632\u06CC \u0632\u06CC\u0631\u06D5\u06A9: \u06A9\u06C6\u0645\u06D5\u06B5\u06AF\u06D5\u06A9\u0627\u0646\u06CC 5G \u0648 \u0634\u0627\u0631\u06D5 \u0632\u06CC\u0631\u06D5\u06A9\u06D5\u06A9\u0627\u0646",
-    speakers: ["Huawei Middle East Enterprise Director", "Iraqi Communications & Media Commission Head", "ZTE Infrastructure Solutions Lead"],
-    moderator: "Dr. Karwan Ali (Sulaymaniyah Polytech)",
-    status: "CONFIRMED"
-  },
-  {
-    id: "session-5",
-    day: 3,
-    date: "2026-10-20",
-    timeStart: "10:00",
-    timeEnd: "16:00",
-    hall: "B2B Bilateral Matchmaking Salon",
-    track: "Trade & Contracts",
-    titleEn: "High-Level B2B Deal-Making & Commercial Protocol Signings (84 Reserved Delegations)",
-    titleAr: "\u0644\u0642\u0627\u0621\u0627\u062A \u0627\u0644\u0623\u0639\u0645\u0627\u0644 \u0627\u0644\u062B\u0646\u0627\u0626\u064A\u0629 \u0648\u062A\u0648\u0642\u064A\u0639 \u0627\u0644\u0628\u0631\u0648\u062A\u0648\u0643\u0648\u0644\u0627\u062A \u0627\u0644\u062A\u062C\u0627\u0631\u064A\u0629 (84 \u0648\u0641\u062F\u0627\u064B \u0645\u0633\u062C\u0644\u0627\u064B)",
-    titleZh: "\u4E2D\u4F0A\u9AD8\u5C42B2B\u7ECF\u8D38\u64AE\u5408\u4E0E\u91CD\u5927\u5546\u4E1A\u534F\u8BAE\u7B7E\u7F72\u4E13\u573A\uFF0884\u4E2A\u5DF2\u6838\u51C6\u4EE3\u8868\u56E2\uFF09",
-    titleCkb: "\u062F\u06CC\u062F\u0627\u0631\u06CC \u0628\u0627\u0632\u0631\u06AF\u0627\u0646\u06CC \u062F\u0648\u0648\u0644\u0627\u06CC\u06D5\u0646\u06D5\u06CC B2B \u0648 \u0648\u0627\u0698\u06C6\u06A9\u0631\u062F\u0646\u06CC \u06AF\u0631\u06CE\u0628\u06D5\u0633\u062A\u06D5\u06A9\u0627\u0646",
-    speakers: ["President of Federation of Iraqi Chambers of Commerce", "CCPIT Middle East Representative", "Kurdistan Federation of Chambers"],
-    moderator: "Protocol Directorate Team",
-    status: "CONFIRMED"
-  },
-  {
-    id: "session-6",
-    day: 4,
-    date: "2026-10-21",
-    timeStart: "10:30",
-    timeEnd: "13:00",
-    hall: "Grand Plenary Hall (Fairground)",
-    track: "Closing Ceremony",
-    titleEn: "Summit Communiqu\xE9, Sulaymaniyah Bilateral Declaration & Final Press Conference",
-    titleAr: "\u0627\u0644\u0628\u064A\u0627\u0646 \u0627\u0644\u062E\u062A\u0627\u0645\u064A \u0644\u0644\u0642\u0645\u0629\u060C \u0625\u0639\u0644\u0627\u0646 \u0627\u0644\u0633\u0644\u064A\u0645\u0627\u0646\u064A\u0629 \u0627\u0644\u062B\u0646\u0627\u0626\u064A\u060C \u0648\u0627\u0644\u0645\u0624\u062A\u0645\u0631 \u0627\u0644\u0635\u062D\u0641\u064A \u0627\u0644\u0631\u0633\u0645\u064A",
-    titleZh: "\u95ED\u5E55\u5178\u793C\uFF1A\u5CF0\u4F1A\u8054\u5408\u516C\u62A5\u53D1\u5E03\u3001\u300A\u82CF\u83B1\u66FC\u5C3C\u4E9A\u53CC\u8FB9\u5BA3\u8A00\u300B\u7B7E\u7F72\u4E0E\u5B98\u65B9\u8BB0\u8005\u4F1A",
-    titleCkb: "\u06A9\u06C6\u0646\u06AF\u0631\u06D5\u06CC \u0695\u06C6\u0698\u0646\u0627\u0645\u06D5\u0648\u0627\u0646\u06CC \u06A9\u06C6\u062A\u0627\u06CC\u06CC\u060C \u0695\u0627\u06AF\u06D5\u06CC\u06D5\u0646\u0631\u0627\u0648\u06CC \u0644\u0648\u0648\u062A\u06A9\u06D5 \u0648 \u062C\u0627\u0695\u0646\u0627\u0645\u06D5\u06CC \u062F\u0648\u0648\u0644\u0627\u06CC\u06D5\u0646\u06D5\u06CC \u0633\u0644\u06CE\u0645\u0627\u0646\u06CC",
-    speakers: ["All Plenipotentiary Delegations", "Joint Secretariat Leads"],
-    moderator: "ICA Secretariat Plenipotentiary Desk",
-    status: "CONFIRMED"
-  }
-];
 function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMiddleware) {
-  const authOrAdmin = adminMiddleware || editorOrAdminMiddleware || ((_req, _res, next) => next());
-  app.get("/api/summit/overview", (_req, res) => {
-    const booths = readJsonFile(BOOTHS_FILE, INITIAL_BOOTHS);
-    const vips = readJsonFile(VIP_FILE, INITIAL_VIP);
-    const agenda = readJsonFile(AGENDA_FILE, INITIAL_AGENDA);
-    const dossiers = readJsonFile(DOSSIERS_FILE, INITIAL_DOSSIERS);
-    const reservedBooths = booths.filter((b) => b.status === "reserved" || b.status === "selected");
-    const availableBooths = booths.filter((b) => b.status === "available");
-    res.json({
-      success: true,
-      eventName: "Iraq-China Economic Summit & Bilateral Expo 2026",
-      edition: "Inaugural Sovereign Edition",
-      venue: "Sulaymaniyah International Fairground, Kurdistan Region, Iraq",
-      dates: "2026-10-18 to 2026-10-21",
-      systemStatus: "ACTIVE",
-      totalBooths: booths.length,
-      reservedBooths: reservedBooths.length,
-      availableBooths: availableBooths.length,
-      halls: [
-        "Hall A: Strategic Energy & Petrochem",
-        "Hall B: Digital Tech & Life Sciences",
-        "Hall C: Bilateral Finance & Logistics",
-        "Outdoor Arena: Heavy Mach & Energy"
-      ],
-      sectorsCount: 11,
-      registeredVipsCount: vips.length,
-      agendaSessionsCount: agenda.length,
-      activeDossiersCount: dossiers.length,
-      b2bMatchmakingSessionsBooked: 84,
-      lastUpdated: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  });
-  app.get("/api/summit/floorplan/booths", (_req, res) => {
-    const booths = readJsonFile(BOOTHS_FILE, INITIAL_BOOTHS);
-    res.json({ success: true, count: booths.length, booths });
-  });
-  app.get("/api/hub/summit/booths", authOrAdmin, (_req, res) => {
+  app.get("/api/summit/floorplan/booths", (req, res) => {
     const booths = readJsonFile(BOOTHS_FILE, INITIAL_BOOTHS);
     res.json({ success: true, count: booths.length, booths });
   });
@@ -9139,74 +8885,21 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
       booth: booths[boothIndex]
     });
   });
-  app.post("/api/hub/summit/booths", authOrAdmin, (req, res) => {
-    try {
-      const body = req.body;
-      const booths = readJsonFile(BOOTHS_FILE, INITIAL_BOOTHS);
-      const id = body.id || `PAV-${Date.now().toString().slice(-4)}`;
-      if (booths.some((b) => b.id === id)) {
-        return res.status(400).json({ error: `Booth with ID ${id} already exists.` });
-      }
-      const newBooth = {
-        id,
-        hall: body.hall || "A",
-        hallName: body.hallName || "Hall A: Strategic Energy & Petrochem",
-        sector: body.sector || "energy-petrochemicals",
-        sectorName: body.sectorName || "Energy & Petrochemicals",
-        size: body.size || "18 m\xB2",
-        type: body.type || "Standard Shell Scheme",
-        price: Number(body.price) || 3600,
-        status: body.status || "available",
-        exhibitor: body.exhibitor || null,
-        x: Number(body.x) || 0,
-        z: Number(body.z) || 0,
-        width: Number(body.width) || 2.5,
-        depth: Number(body.depth) || 2
-      };
-      booths.push(newBooth);
-      writeJsonFile(BOOTHS_FILE, booths);
-      res.status(201).json({ success: true, booth: newBooth });
-    } catch (e) {
-      res.status(500).json({ error: "Failed to create booth" });
-    }
-  });
-  app.put("/api/hub/summit/booths/:id", authOrAdmin, (req, res) => {
+  app.put("/api/hub/summit/booths/:id", adminMiddleware, (req, res) => {
     const { id } = req.params;
-    const { status, exhibitor, price, hall, sector, size, type } = req.body;
+    const { status, exhibitor, price } = req.body;
     const booths = readJsonFile(BOOTHS_FILE, INITIAL_BOOTHS);
     const boothIndex = booths.findIndex((b) => b.id === id);
     if (boothIndex === -1) {
       return res.status(404).json({ error: `Booth ${id} not found.` });
     }
-    if (status !== void 0) booths[boothIndex].status = status;
+    if (status) booths[boothIndex].status = status;
     if (exhibitor !== void 0) booths[boothIndex].exhibitor = exhibitor;
-    if (price !== void 0) booths[boothIndex].price = Number(price);
-    if (hall !== void 0) booths[boothIndex].hall = hall;
-    if (sector !== void 0) booths[boothIndex].sector = sector;
-    if (size !== void 0) booths[boothIndex].size = size;
-    if (type !== void 0) booths[boothIndex].type = type;
+    if (price !== void 0) booths[boothIndex].price = price;
     writeJsonFile(BOOTHS_FILE, booths);
     res.json({ success: true, booth: booths[boothIndex] });
   });
-  app.delete("/api/hub/summit/booths/:id", authOrAdmin, (req, res) => {
-    const { id } = req.params;
-    const booths = readJsonFile(BOOTHS_FILE, INITIAL_BOOTHS);
-    const filtered = booths.filter((b) => b.id !== id);
-    if (filtered.length === booths.length) {
-      return res.status(404).json({ error: `Booth ${id} not found.` });
-    }
-    writeJsonFile(BOOTHS_FILE, filtered);
-    res.json({ success: true, message: `Booth ${id} deleted.` });
-  });
-  app.post("/api/hub/summit/booths/reset", authOrAdmin, (_req, res) => {
-    writeJsonFile(BOOTHS_FILE, INITIAL_BOOTHS);
-    res.json({ success: true, count: INITIAL_BOOTHS.length, booths: INITIAL_BOOTHS });
-  });
-  app.get("/api/summit/vip-registrations", (_req, res) => {
-    const vips = readJsonFile(VIP_FILE, INITIAL_VIP);
-    res.json({ success: true, count: vips.length, registrations: vips });
-  });
-  app.get("/api/hub/summit/vip-registrations", authOrAdmin, (_req, res) => {
+  app.get("/api/summit/vip-registrations", (req, res) => {
     const vips = readJsonFile(VIP_FILE, INITIAL_VIP);
     res.json({ success: true, count: vips.length, registrations: vips });
   });
@@ -9256,48 +8949,11 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
       registration: newVip
     });
   });
-  app.post("/api/hub/summit/vip-registrations", authOrAdmin, (req, res) => {
-    const {
-      officialName,
-      diplomaticTitle,
-      ministryOrEntity,
-      country,
-      officialEmail,
-      protocolPhone,
-      delegationCount,
-      requiresSecurityEscort,
-      requiresBilingualAide,
-      bilateralSalonRequested,
-      status,
-      assignedOfficer
-    } = req.body;
-    if (!officialName || !diplomaticTitle) {
-      return res.status(400).json({ error: "Official name and diplomatic title are required." });
-    }
+  app.get("/api/hub/summit/vip-registrations", adminMiddleware, (req, res) => {
     const vips = readJsonFile(VIP_FILE, INITIAL_VIP);
-    const code = `VIP-PROTO-${Math.floor(1e4 + Math.random() * 9e4)}`;
-    const newVip = {
-      id: `vip-${Date.now()}`,
-      code,
-      officialName,
-      diplomaticTitle,
-      ministryOrEntity: ministryOrEntity || "Governmental / Diplomatic Mission",
-      country: country || "Republic of Iraq",
-      officialEmail: officialEmail || "protocol@delegation.gov",
-      protocolPhone: protocolPhone || "",
-      delegationCount: Number(delegationCount) || 1,
-      requiresSecurityEscort: !!requiresSecurityEscort,
-      requiresBilingualAide: !!requiresBilingualAide,
-      bilateralSalonRequested: !!bilateralSalonRequested,
-      status: status || "APPROVED",
-      registeredAt: (/* @__PURE__ */ new Date()).toISOString(),
-      assignedOfficer: assignedOfficer || "Executive Protocol Directorate"
-    };
-    vips.unshift(newVip);
-    writeJsonFile(VIP_FILE, vips);
-    res.status(201).json({ success: true, registration: newVip });
+    res.json({ success: true, count: vips.length, registrations: vips });
   });
-  app.put("/api/hub/summit/vip-registrations/:id/status", authOrAdmin, (req, res) => {
+  app.put("/api/hub/summit/vip-registrations/:id/status", adminMiddleware, (req, res) => {
     const { id } = req.params;
     const { status, assignedOfficer } = req.body;
     const vips = readJsonFile(VIP_FILE, INITIAL_VIP);
@@ -9310,84 +8966,7 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
     writeJsonFile(VIP_FILE, vips);
     res.json({ success: true, registration: vips[vipIndex] });
   });
-  app.put("/api/hub/summit/vip-registrations/:id", authOrAdmin, (req, res) => {
-    const { id } = req.params;
-    const vips = readJsonFile(VIP_FILE, INITIAL_VIP);
-    const index = vips.findIndex((v) => v.id === id || v.code === id);
-    if (index === -1) {
-      return res.status(404).json({ error: `VIP Record ${id} not found.` });
-    }
-    vips[index] = { ...vips[index], ...req.body };
-    writeJsonFile(VIP_FILE, vips);
-    res.json({ success: true, registration: vips[index] });
-  });
-  app.delete("/api/hub/summit/vip-registrations/:id", authOrAdmin, (req, res) => {
-    const { id } = req.params;
-    const vips = readJsonFile(VIP_FILE, INITIAL_VIP);
-    const filtered = vips.filter((v) => v.id !== id && v.code !== id);
-    if (filtered.length === vips.length) {
-      return res.status(404).json({ error: `VIP Record ${id} not found.` });
-    }
-    writeJsonFile(VIP_FILE, filtered);
-    res.json({ success: true, message: `VIP Record ${id} deleted successfully.` });
-  });
-  app.get("/api/summit/agenda", (_req, res) => {
-    const agenda = readJsonFile(AGENDA_FILE, INITIAL_AGENDA);
-    res.json({ success: true, count: agenda.length, sessions: agenda });
-  });
-  app.get("/api/hub/summit/agenda", authOrAdmin, (_req, res) => {
-    const agenda = readJsonFile(AGENDA_FILE, INITIAL_AGENDA);
-    res.json({ success: true, count: agenda.length, sessions: agenda });
-  });
-  app.post("/api/hub/summit/agenda", authOrAdmin, (req, res) => {
-    try {
-      const body = req.body;
-      const agenda = readJsonFile(AGENDA_FILE, INITIAL_AGENDA);
-      const newSession = {
-        id: body.id || `session-${Date.now()}`,
-        day: Number(body.day) || 1,
-        date: body.date || "2026-10-18",
-        timeStart: body.timeStart || "10:00",
-        timeEnd: body.timeEnd || "11:30",
-        hall: body.hall || "Grand Plenary Hall",
-        track: body.track || "General Track",
-        titleEn: body.titleEn || "New Summit Session",
-        titleAr: body.titleAr || body.titleEn || "",
-        titleZh: body.titleZh || body.titleEn || "",
-        titleCkb: body.titleCkb || body.titleEn || "",
-        speakers: Array.isArray(body.speakers) ? body.speakers : body.speakers ? [body.speakers] : [],
-        moderator: body.moderator || "",
-        status: body.status || "CONFIRMED"
-      };
-      agenda.push(newSession);
-      writeJsonFile(AGENDA_FILE, agenda);
-      res.status(201).json({ success: true, session: newSession });
-    } catch (e) {
-      res.status(500).json({ error: "Failed to create agenda session" });
-    }
-  });
-  app.put("/api/hub/summit/agenda/:id", authOrAdmin, (req, res) => {
-    const { id } = req.params;
-    const agenda = readJsonFile(AGENDA_FILE, INITIAL_AGENDA);
-    const index = agenda.findIndex((s) => s.id === id);
-    if (index === -1) {
-      return res.status(404).json({ error: `Session ${id} not found.` });
-    }
-    agenda[index] = { ...agenda[index], ...req.body };
-    writeJsonFile(AGENDA_FILE, agenda);
-    res.json({ success: true, session: agenda[index] });
-  });
-  app.delete("/api/hub/summit/agenda/:id", authOrAdmin, (req, res) => {
-    const { id } = req.params;
-    const agenda = readJsonFile(AGENDA_FILE, INITIAL_AGENDA);
-    const filtered = agenda.filter((s) => s.id !== id);
-    if (filtered.length === agenda.length) {
-      return res.status(404).json({ error: `Session ${id} not found.` });
-    }
-    writeJsonFile(AGENDA_FILE, filtered);
-    res.json({ success: true, message: `Session ${id} deleted.` });
-  });
-  app.get("/api/services/dossiers", (_req, res) => {
+  app.get("/api/services/dossiers", (req, res) => {
     const dossiers = readJsonFile(DOSSIERS_FILE, INITIAL_DOSSIERS);
     res.json({ success: true, count: dossiers.length, dossiers });
   });
@@ -9416,7 +8995,7 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
     const newDossier = {
       code,
       serviceId,
-      serviceName: typeof serviceName === "object" ? serviceName : { en: serviceId, ar: serviceId, zh: serviceId, ckb: serviceId },
+      serviceName: serviceName || { en: serviceId, ar: serviceId, zh: serviceId, ckb: serviceId },
       clientName,
       applicantEmail,
       companyEntity: companyEntity || clientName,
@@ -9439,7 +9018,7 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
     };
     dossiers.unshift(newDossier);
     writeJsonFile(DOSSIERS_FILE, dossiers);
-    res.status(201).json({
+    res.json({
       success: true,
       message: `Dossier ${code} submitted successfully.`,
       code,
@@ -9455,47 +9034,11 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
     }
     res.json({ success: true, dossier: match });
   });
-  app.get("/api/hub/services/dossiers", authOrAdmin, (_req, res) => {
+  app.get("/api/hub/services/dossiers", adminMiddleware, (req, res) => {
     const dossiers = readJsonFile(DOSSIERS_FILE, INITIAL_DOSSIERS);
     res.json({ success: true, count: dossiers.length, dossiers });
   });
-  app.post("/api/hub/services/dossiers", authOrAdmin, (req, res) => {
-    try {
-      const body = req.body;
-      const dossiers = readJsonFile(DOSSIERS_FILE, INITIAL_DOSSIERS);
-      const code = body.code || `CISE-DOS-2026-${Math.floor(1e3 + Math.random() * 9e3)}`;
-      const newDossier = {
-        code,
-        serviceId: body.serviceId || "clearing-rail",
-        serviceName: body.serviceName || { en: "Sovereign Service", ar: "\u062E\u062F\u0645\u0629 \u0633\u064A\u0627\u062F\u064A\u0629", zh: "\u4E3B\u6743\u670D\u52A1", ckb: "\u062E\u0632\u0645\u06D5\u062A\u06AF\u0648\u0632\u0627\u0631\u06CC \u0633\u06D5\u0631\u0648\u06D5\u0631\u06CC" },
-        clientName: body.clientName || "Institutional Client",
-        applicantEmail: body.applicantEmail || "client@cise-desk.org",
-        companyEntity: body.companyEntity || body.clientName || "Entity",
-        jurisdiction: body.jurisdiction || "Iraq / China Bilateral",
-        estimatedFeeUSD: Number(body.estimatedFeeUSD) || 2500,
-        estimatedFeeIQD: Number(body.estimatedFeeIQD) || 3275e3,
-        estimatedFeeRMB: Number(body.estimatedFeeRMB) || 18e3,
-        tier: body.tier || "Priority Sovereign Clearing",
-        slaDays: Number(body.slaDays) || 3,
-        stage: body.stage || "COMPLIANCE_REVIEW",
-        stages: body.stages || [
-          { name: "Submission & Dossier Verification", date: (/* @__PURE__ */ new Date()).toISOString().split("T")[0], done: true, note: "Documentary verification." },
-          { name: "Compliance & Anti-Money Laundering Screening", date: "In Progress", done: false, note: "Under review." },
-          { name: "Interbank Liquidity & Pool Allocation", date: "Pending", done: false, note: "Pending pool check." },
-          { name: "Sovereign Clearing Authorization", date: "Pending", done: false, note: "Pending approval." },
-          { name: "Settlement Dispatched & Credited", date: "Pending", done: false, note: "Pending dispatch." }
-        ],
-        submittedAt: (/* @__PURE__ */ new Date()).toISOString(),
-        assignedOfficer: body.assignedOfficer || "Directorate of Bilateral Services"
-      };
-      dossiers.unshift(newDossier);
-      writeJsonFile(DOSSIERS_FILE, dossiers);
-      res.status(201).json({ success: true, dossier: newDossier });
-    } catch (e) {
-      res.status(500).json({ error: "Failed to create service dossier" });
-    }
-  });
-  app.put("/api/hub/services/dossiers/:code/status", authOrAdmin, (req, res) => {
+  app.put("/api/hub/services/dossiers/:code/status", adminMiddleware, (req, res) => {
     const { code } = req.params;
     const { stage, assignedOfficer, note } = req.body;
     const dossiers = readJsonFile(DOSSIERS_FILE, INITIAL_DOSSIERS);
@@ -9527,17 +9070,7 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
     writeJsonFile(DOSSIERS_FILE, dossiers);
     res.json({ success: true, dossier: dossiers[index] });
   });
-  app.delete("/api/hub/services/dossiers/:code", authOrAdmin, (req, res) => {
-    const { code } = req.params;
-    const dossiers = readJsonFile(DOSSIERS_FILE, INITIAL_DOSSIERS);
-    const filtered = dossiers.filter((d) => d.code.toUpperCase() !== code.trim().toUpperCase());
-    if (filtered.length === dossiers.length) {
-      return res.status(404).json({ error: `Dossier ${code} not found.` });
-    }
-    writeJsonFile(DOSSIERS_FILE, filtered);
-    res.json({ success: true, message: `Dossier ${code} deleted successfully.` });
-  });
-  app.get("/api/services/fee-structure", (_req, res) => {
+  app.get("/api/services/fee-structure", (req, res) => {
     res.json({
       success: true,
       rates: {
@@ -9551,6 +9084,7 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
           name: "Sovereign Clearing Rail (IQD \u21C4 RMB)",
           baseFeeUSD: 850,
           percentageRate: 35e-4,
+          // 0.35%
           turnaroundDays: 2
         },
         {
@@ -9558,6 +9092,7 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
           name: "Sinosure Strategic Risk Mitigation",
           baseFeeUSD: 1500,
           percentageRate: 65e-4,
+          // 0.65%
           turnaroundDays: 5
         },
         {
@@ -9571,6 +9106,7 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
           id: "visa-consular",
           name: "Diplomatic & Business Fast-Track Visa",
           baseFeeUSD: 180,
+          // per applicant
           expressSurchargeUSD: 95,
           turnaroundDays: 3
         },
@@ -9578,6 +9114,7 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
           id: "academic-fellowship",
           name: "HSK Academy & Diplomatic Fellowship",
           baseFeeUSD: 650,
+          // per semester
           certificationFeeUSD: 120,
           turnaroundDays: 7
         },
@@ -9595,262 +9132,16 @@ function registerSummitAndServicesRoutes(app, editorOrAdminMiddleware, adminMidd
 
 // server/routes/settlementRoutes.ts
 import { Router } from "express";
-import fs5 from "fs";
-import path5 from "path";
 var settlementRouter = Router();
-var DATA_DIR2 = path5.join(process.cwd(), "server", "data");
-if (!fs5.existsSync(DATA_DIR2)) {
-  fs5.mkdirSync(DATA_DIR2, { recursive: true });
-}
-var ORDERS_FILE = path5.join(DATA_DIR2, "payment_orders.json");
-var RATES_FILE = path5.join(DATA_DIR2, "payment_rates.json");
-function readJsonFile2(filePath, defaultData) {
-  try {
-    if (fs5.existsSync(filePath)) {
-      const content = fs5.readFileSync(filePath, "utf-8");
-      return JSON.parse(content);
-    }
-  } catch (e) {
-    console.error(`Error reading ${filePath}:`, e);
-  }
-  try {
-    fs5.writeFileSync(filePath, JSON.stringify(defaultData, null, 2));
-  } catch (err) {
-    console.error(`Error writing default to ${filePath}:`, err);
-  }
-  return defaultData;
-}
-function writeJsonFile2(filePath, data) {
-  try {
-    fs5.writeFileSync(filePath, JSON.stringify(data, null, 2));
-  } catch (e) {
-    console.error(`Error writing ${filePath}:`, e);
-  }
-}
-var INITIAL_PAYMENT_RATES = {
-  id: "rate_cbi_pboc_cny_iqd",
-  pair: "IQD/CNY",
-  baseRate: 181.09,
-  bidRate: 180.85,
-  askRate: 181.33,
-  retailFeePercent: 0.25,
-  businessFeePercent: 0.12,
-  minimumRetailIqd: 5e4,
-  minimumBusinessIqd: 1e6,
-  change24h: 0.14,
-  high24h: 181.45,
-  low24h: 180.72,
-  volume24h: "\xA548,250,000",
-  ecnyReservePool: 35e7,
-  iqdReservePool: 635e8,
-  mbridgeStatus: "ACTIVE",
-  cipsGatewayStatus: "ONLINE",
-  cbiClearingStatus: "SYNCHRONIZED",
-  updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-  trendHistory: [
-    { time: "06:00", rate: 180.82, volume: 42e5 },
-    { time: "08:00", rate: 180.95, volume: 75e5 },
-    { time: "10:00", rate: 181.12, volume: 123e5 },
-    { time: "12:00", rate: 181.05, volume: 98e5 },
-    { time: "14:00", rate: 181.18, volume: 114e5 },
-    { time: "16:00", rate: 181.09, volume: 82e5 }
-  ]
-};
-var INITIAL_PAYMENT_ORDERS = [
-  {
-    id: "ord-cips-8849",
-    reference: "CIPS-2026-IQCN-8849",
-    orderType: "BUSINESS",
-    direction: "IQD_TO_ECNY",
-    sourceCurrency: "IQD",
-    targetCurrency: "CNY",
-    sourceAmount: 25e8,
-    targetAmount: 1380529018e-2,
-    exchangeRate: 181.09,
-    feeAmount: 3e6,
-    feePercent: 0.12,
-    status: "COMPLETED",
-    senderName: "Tariq Al-Mansoor",
-    senderEmail: "tariq@mesopotamia-petro.iq",
-    senderPhone: "+964 790 123 4567",
-    senderCompany: "Mesopotamia Petroleum Logistics Corp",
-    recipientName: "Sinopec Heavy Equipment Engineering Ltd",
-    recipientIdentifier: "CIPS-SH-992100824",
-    recipientEntity: "Sinopec Heavy Equipment Co.",
-    recipientBankOrBureau: "Bank of China (Shanghai Interbank)",
-    purpose: "Crude Pipeline Compression Units & Valves Procurements",
-    settlementMethod: "CIPS Direct Clearing Rail (Baghdad - Shanghai)",
-    commercialInvoiceRef: "INV-2026-SNPC-0941",
-    billOfLading: "BL-BASRA-SHA-2026-03",
-    customsDeclarationNo: "IRQ-CUS-BAS-88219",
-    contractValueUsd: 191e4,
-    settlementTxHash: "0x94fbc2818a7c29381e4b882190ccde9837a2819e918237d82192cb9182aa182b",
-    verificationCode: "AUTH-CBI-8849-VALID",
-    adminNotes: "Cleared through PBOC swap facility with statutory approval from CBI window.",
-    complianceNotes: "AML Level 3 verification passed. Sanctions check cleared.",
-    settledAt: new Date(Date.now() - 36e5 * 3.5).toISOString(),
-    createdAt: new Date(Date.now() - 36e5 * 5).toISOString(),
-    updatedAt: new Date(Date.now() - 36e5 * 3.5).toISOString(),
-    timeline: [
-      { stage: "SUBMISSION", title: "Order Submitted via ICA Settlement Gateway", timestamp: new Date(Date.now() - 36e5 * 5).toISOString(), completed: true, details: "Order submitted with commercial invoice and customs declaration." },
-      { stage: "COMPLIANCE", title: "CBI Liquidity Verification & AML Compliance", timestamp: new Date(Date.now() - 36e5 * 4.5).toISOString(), completed: true, details: "KYC verified and sanctions check completed." },
-      { stage: "CLEARING", title: "CIPS Direct Transmit to Shanghai Clearing House", timestamp: new Date(Date.now() - 36e5 * 4).toISOString(), completed: true, details: "Dispatched through bilateral CIPS gateway." },
-      { stage: "SETTLED", title: "Final e-CNY Credit to Beneficiary Custody", timestamp: new Date(Date.now() - 36e5 * 3.5).toISOString(), completed: true, details: "e-CNY credited to recipient account in Shanghai." }
-    ]
-  },
-  {
-    id: "ord-cips-9012",
-    reference: "CIPS-2026-IQCN-9012",
-    orderType: "BUSINESS",
-    direction: "IQD_TO_ECNY",
-    sourceCurrency: "IQD",
-    targetCurrency: "CNY",
-    sourceAmount: 75e7,
-    targetAmount: 414158705e-2,
-    exchangeRate: 181.09,
-    feeAmount: 9e5,
-    feePercent: 0.12,
-    status: "PROCESSING",
-    senderName: "Haidar Kadhim",
-    senderEmail: "kadhim@tigris-agro.iq",
-    senderPhone: "+964 780 234 5678",
-    senderCompany: "Tigris Modern Agritech Consortium",
-    recipientName: "Zoomlion Heavy Industry Agricultural Machinery",
-    recipientIdentifier: "CIPS-CS-441092831",
-    recipientEntity: "Zoomlion International",
-    recipientBankOrBureau: "Agricultural Bank of China (Changsha)",
-    purpose: "Combine Harvesters & Solar Irrigation Pumps",
-    settlementMethod: "mBridge Wholesale CBDC Rail",
-    commercialInvoiceRef: "INV-ZL-2026-081",
-    contractValueUsd: 572e3,
-    settlementTxHash: "0x18a93bcde82910fa4819ca92830182910ab381920ceba1829371629abde19283",
-    verificationCode: "AUTH-MBRIDGE-9012-PENDING",
-    adminNotes: "Awaiting final multi-party signature on mBridge consensus nodes.",
-    createdAt: new Date(Date.now() - 36e5 * 2).toISOString(),
-    updatedAt: new Date(Date.now() - 36e5 * 1.5).toISOString(),
-    timeline: [
-      { stage: "SUBMISSION", title: "Order Submitted via ICA Settlement Gateway", timestamp: new Date(Date.now() - 36e5 * 2).toISOString(), completed: true, details: "Wholesale CBDC transfer requested." },
-      { stage: "COMPLIANCE", title: "CBI Liquidity Verification", timestamp: new Date(Date.now() - 36e5 * 1.5).toISOString(), completed: true, details: "Compliance officer verified trade documents." },
-      { stage: "CLEARING", title: "mBridge Consensus Processing", timestamp: new Date(Date.now() - 36e5 * 1).toISOString(), completed: false, details: "Multi-CBDC node consensus round 3 of 4." }
-    ]
-  },
-  {
-    id: "ord-cips-9104",
-    reference: "CIPS-2026-IQCN-9104",
-    orderType: "RETAIL",
-    direction: "IQD_TO_ECNY",
-    sourceCurrency: "IQD",
-    targetCurrency: "CNY",
-    sourceAmount: 362e4,
-    targetAmount: 19990.06,
-    exchangeRate: 181.09,
-    feeAmount: 9050,
-    feePercent: 0.25,
-    status: "PENDING_SETTLEMENT",
-    senderName: "Soran Faraj",
-    senderEmail: "soran.faraj@sulay-trade.krd",
-    senderPhone: "+964 770 345 6789",
-    recipientName: "Shenzhen Yida Electronic Components Ltd",
-    recipientIdentifier: "UNIONPAY-SZ-62284819",
-    purpose: "Electronic Sensors and Microcontroller Sample Batch",
-    settlementMethod: "Qi Card / Bilateral Retail Gateway",
-    contractValueUsd: 2760,
-    createdAt: new Date(Date.now() - 18e5).toISOString(),
-    updatedAt: new Date(Date.now() - 18e5).toISOString(),
-    timeline: [
-      { stage: "SUBMISSION", title: "Retail Payment Initiated", timestamp: new Date(Date.now() - 18e5).toISOString(), completed: true, details: "Pending merchant settlement batch." }
-    ]
-  },
-  {
-    id: "ord-cips-8630",
-    reference: "CIPS-2026-IQCN-8630",
-    orderType: "BUSINESS",
-    direction: "IQD_TO_ECNY",
-    sourceCurrency: "IQD",
-    targetCurrency: "CNY",
-    sourceAmount: 12e8,
-    targetAmount: 662653929e-2,
-    exchangeRate: 181.09,
-    feeAmount: 144e4,
-    feePercent: 0.12,
-    status: "COMPLIANCE_HOLD",
-    senderName: "Mustafa Al-Bayati",
-    senderEmail: "bayati@al-zawraa-import.iq",
-    senderCompany: "Al-Zawraa Industrial Trading LLC",
-    recipientName: "Hebei Iron & Steel Group Trading Corp",
-    recipientIdentifier: "CIPS-HB-3301928",
-    purpose: "Reinforced Rebar & Structural Steel Sections",
-    settlementMethod: "CIPS Direct Clearing Rail",
-    complianceNotes: "Awaiting supplementary Certificate of Origin endorsement from Iraqi Ministry of Trade.",
-    createdAt: new Date(Date.now() - 864e5).toISOString(),
-    updatedAt: new Date(Date.now() - 72e6).toISOString(),
-    timeline: [
-      { stage: "SUBMISSION", title: "Invoice Registered", timestamp: new Date(Date.now() - 864e5).toISOString(), completed: true, details: "Invoice registered." },
-      { stage: "HOLD", title: "Compliance Hold Triggered", timestamp: new Date(Date.now() - 72e6).toISOString(), completed: true, details: "Pending Certificate of Origin." }
-    ]
-  }
-];
-function calculateTelemetry(orders) {
-  let totalEcnyVolume = 0;
-  let totalIqdVolume = 0;
-  let pendingCount = 0;
-  let holdCount = 0;
-  let completedCount = 0;
-  for (const o of orders) {
-    if (o.status === "COMPLETED" || o.status === "PROCESSING") {
-      if (o.targetCurrency === "CNY") totalEcnyVolume += o.targetAmount || 0;
-      if (o.sourceCurrency === "IQD") totalIqdVolume += o.sourceAmount || 0;
-    }
-    if (o.status === "PENDING_SETTLEMENT" || o.status === "PROCESSING") {
-      pendingCount++;
-    } else if (o.status === "COMPLIANCE_HOLD") {
-      holdCount++;
-    } else if (o.status === "COMPLETED") {
-      completedCount++;
-    }
-  }
-  return {
-    totalOrders: orders.length,
-    totalEcnyVolume: Math.round(totalEcnyVolume),
-    totalIqdVolume: Math.round(totalIqdVolume),
-    pendingCount,
-    holdCount,
-    completedCount
-  };
-}
-settlementRouter.get("/overview", async (_req, res) => {
-  try {
-    const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-    return res.json({
-      success: true,
-      clearingRail: "Direct IQD \u21C4 RMB Bilateral Sovereign Clearing Rail",
-      status: "ONLINE",
-      cbiRegulated: true,
-      pbocParityProtocol: "CFETS-PARITY-ENABLED",
-      directSpreadPercent: 0,
-      thirdCurrencySpreadPercent: 5.64,
-      settlementTimeWindowHours: "24-48",
-      activePairs: ["CNY/IQD", "IQD/USD", "CNY/USD"],
-      supportedChannels: ["CIPS Direct Clearing Rail", "CBI mBridge Multi-CBDC", "Qi Card Bilateral Gateway"],
-      mBridgeNetworkStatus: "ACTIVE",
-      totalOrdersProcessed: orders.length,
-      cumulativeSavingsUsd: "$124,500,000+",
-      lastUpdated: (/* @__PURE__ */ new Date()).toISOString()
-    });
-  } catch (error) {
-    return res.status(500).json({ error: "Failed to fetch settlement overview" });
-  }
-});
 settlementRouter.get("/rates", async (_req, res) => {
   try {
-    const currentRates = readJsonFile2(RATES_FILE, INITIAL_PAYMENT_RATES);
-    const ratesResponse = {
+    const rates = {
       base: "USD",
       timestamp: (/* @__PURE__ */ new Date()).toISOString(),
       lastUpdated: (/* @__PURE__ */ new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       source: "CBI-PBOC Bilateral Financial Clearing Rail",
-      iqdPerRmb: currentRates.baseRate,
-      rmbPerIqd: +(1 / currentRates.baseRate).toFixed(6),
+      iqdPerRmb: 181.09,
+      rmbPerIqd: 5522e-6,
       traditionalIqdPerRmb: 192.8,
       traditionalRmbPerIqd: 5186e-6,
       directSpreadPercent: 0,
@@ -9860,8 +9151,10 @@ settlementRouter.get("/rates", async (_req, res) => {
       rates: {
         IQD_USD: 1310,
         CNY_USD: 7.234,
-        IQD_CNY: currentRates.baseRate,
-        CNY_IQD: +(1 / currentRates.baseRate).toFixed(6),
+        IQD_CNY: 181.09,
+        // 1 CNY = ~181.09 IQD
+        CNY_IQD: 5522e-6,
+        // 1 IQD = ~0.00552 CNY
         EUR_USD: 1.085,
         AED_USD: 3.6725,
         SAR_USD: 3.75
@@ -9869,10 +9162,10 @@ settlementRouter.get("/rates", async (_req, res) => {
       bilateralPairs: [
         {
           pair: "CNY/IQD",
-          rate: currentRates.baseRate,
-          change24h: `+${currentRates.change24h}%`,
+          rate: 181.09,
+          change24h: "+0.14%",
           spreadBps: 12,
-          cbiBenchmark: currentRates.bidRate,
+          cbiBenchmark: 180.85,
           pbocBenchmark: 7.234,
           clearingChannel: "Direct Bilateral CIPS / CBI mBridge",
           liquidityStatus: "OPTIMAL"
@@ -9899,17 +9192,105 @@ settlementRouter.get("/rates", async (_req, res) => {
         }
       ],
       mBridgeStatus: {
-        active: currentRates.mbridgeStatus === "ACTIVE",
+        active: true,
         networkLatencyMs: 142,
         throughputTps: 3400,
         supportedAssets: ["e-CNY", "Digital IQD Conduit", "CBDC Settlement Units"]
       }
     };
-    return res.json(ratesResponse);
+    return res.json(rates);
   } catch (error) {
     console.error("Error fetching settlement rates:", error);
     return res.status(500).json({ error: "Failed to fetch bilateral rates" });
   }
+});
+var simulatedSettlementOrders = /* @__PURE__ */ new Map([
+  [
+    "CIPS-2026-IQCN-8849",
+    {
+      refNumber: "CIPS-2026-IQCN-8849",
+      status: "SETTLED",
+      amountSource: 25e8,
+      currencySource: "IQD",
+      amountTarget: 1380529018e-2,
+      currencyTarget: "CNY",
+      clearingRail: "CIPS Direct Clearing Rail (Baghdad - Shanghai)",
+      feeSavingsUSD: 41250,
+      feePercentage: 0.12,
+      originatorEntity: "Mesopotamia Petroleum Logistics Corp",
+      beneficiaryEntity: "Sinopec Heavy Equipment Engineering Ltd",
+      cbiApprovalCode: "CBI-FX-2026-9921",
+      pbocApprovalCode: "PBOC-SH-2026-4412",
+      txHash: "0x94fbc2818a7c29381e4b882190ccde9837a2819e918237d82192cb9182aa182b",
+      createdAt: new Date(Date.now() - 36e5 * 4).toISOString(),
+      settledAt: new Date(Date.now() - 36e5 * 3.5).toISOString(),
+      auditTrail: [
+        { step: "Order Initiated via Baghdad Clearing Hub", time: "10:00:12 GMT+3", status: "COMPLETED" },
+        { step: "CBI Liquidity Verification & AML Compliance", time: "10:04:45 GMT+3", status: "COMPLETED" },
+        { step: "CIPS Direct Transmit to Shanghai Clearing House", time: "10:12:18 GMT+3", status: "COMPLETED" },
+        { step: "Final e-CNY Credit to Beneficiary Custody", time: "10:28:40 GMT+3", status: "COMPLETED" }
+      ]
+    }
+  ],
+  [
+    "CIPS-2026-IQCN-9012",
+    {
+      refNumber: "CIPS-2026-IQCN-9012",
+      status: "CLEARING_PBOC",
+      amountSource: 75e7,
+      currencySource: "IQD",
+      amountTarget: 414158705e-2,
+      currencyTarget: "CNY",
+      clearingRail: "mBridge Wholesale CBDC Rail",
+      feeSavingsUSD: 12400,
+      feePercentage: 0.08,
+      originatorEntity: "Basra Green Energy Infrastructure LLC",
+      beneficiaryEntity: "State Grid Electric Power Global Corp",
+      cbiApprovalCode: "CBI-FX-2026-10492",
+      pbocApprovalCode: "PENDING_FINAL_POSTING",
+      txHash: "0x2a71f01cba882173ea6621908aa9172361bbaa198273dc98127391ab10283741",
+      createdAt: new Date(Date.now() - 36e5 * 1).toISOString(),
+      settledAt: null,
+      auditTrail: [
+        { step: "Order Initiated via Baghdad Clearing Hub", time: "14:15:00 GMT+3", status: "COMPLETED" },
+        { step: "CBI Liquidity Verification & AML Compliance", time: "14:18:22 GMT+3", status: "COMPLETED" },
+        { step: "mBridge Inter-CBDC Settlement In-Flight", time: "14:25:10 GMT+3", status: "IN_PROGRESS" }
+      ]
+    }
+  ]
+]);
+settlementRouter.get("/tracker/:ref", (req, res) => {
+  const ref = req.params.ref.trim();
+  const order = simulatedSettlementOrders.get(ref);
+  if (order) {
+    return res.json({ success: true, order });
+  }
+  if (ref.length >= 6) {
+    const syntheticOrder = {
+      refNumber: ref,
+      status: "VERIFIED_ACTIVE",
+      amountSource: 12e8,
+      currencySource: "IQD",
+      amountTarget: 662653928e-2,
+      currencyTarget: "CNY",
+      clearingRail: "Bilateral Direct Swap Conduit (CBI-PBOC)",
+      feeSavingsUSD: 18500,
+      feePercentage: 0.11,
+      originatorEntity: "Authorized Bilateral Trading Entity",
+      beneficiaryEntity: "Designated Industrial Counterparty",
+      cbiApprovalCode: `CBI-FX-${Math.floor(1e3 + Math.random() * 9e3)}`,
+      pbocApprovalCode: `PBOC-SH-${Math.floor(1e3 + Math.random() * 9e3)}`,
+      txHash: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
+      createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+      settledAt: null,
+      auditTrail: [
+        { step: "Reference Verified in Interbank Ledger", time: "Just now", status: "COMPLETED" },
+        { step: "FX Settlement Clearing Verification", time: "In Progress", status: "IN_PROGRESS" }
+      ]
+    };
+    return res.json({ success: true, order: syntheticOrder });
+  }
+  return res.status(404).json({ success: false, error: "Settlement order not found" });
 });
 settlementRouter.post("/inquiry", async (req, res) => {
   try {
@@ -9969,51 +9350,40 @@ settlementRouter.post("/card/register", async (req, res) => {
 });
 settlementRouter.post("/gateway/checkout", async (req, res) => {
   try {
-    const { sourceCurrency, targetCurrency, amount, originator, beneficiary, notes, orderType } = req.body;
+    const { sourceCurrency, targetCurrency, amount, originator, beneficiary, notes } = req.body;
     const parsedAmount = parseFloat(amount);
     if (!parsedAmount || parsedAmount <= 0) {
       return res.status(400).json({ error: "Valid transaction amount is required." });
     }
-    const currentRates = readJsonFile2(RATES_FILE, INITIAL_PAYMENT_RATES);
-    const rate = sourceCurrency === "IQD" ? +(1 / currentRates.baseRate).toFixed(6) : currentRates.baseRate;
+    const refNumber = `CIPS-2026-IQCN-${Math.floor(1e3 + Math.random() * 9e3)}`;
+    const rate = sourceCurrency === "IQD" ? 5522e-6 : 181.09;
     const calculatedTarget = sourceCurrency === "IQD" ? parsedAmount * rate : parsedAmount * rate;
     const feeSavedUSD = parsedAmount * 0.0268;
-    const refNumber = `CIPS-2026-IQCN-${Math.floor(1e3 + Math.random() * 9e3)}`;
-    const orderId = `ord-${Date.now()}`;
     const newOrder = {
-      id: orderId,
-      reference: refNumber,
-      orderType: (orderType || "BUSINESS").toUpperCase(),
-      direction: sourceCurrency === "IQD" ? "IQD_TO_ECNY" : "ECNY_TO_IQD",
-      sourceCurrency: sourceCurrency || "IQD",
-      targetCurrency: targetCurrency || "CNY",
-      sourceAmount: parsedAmount,
-      targetAmount: Math.round(calculatedTarget * 100) / 100,
-      exchangeRate: currentRates.baseRate,
-      feeAmount: Math.round(parsedAmount * (orderType === "RETAIL" ? currentRates.retailFeePercent / 100 : currentRates.businessFeePercent / 100)),
-      feePercent: orderType === "RETAIL" ? currentRates.retailFeePercent : currentRates.businessFeePercent,
-      status: "COMPLETED",
-      senderName: originator || "Registered Trading Entity",
-      senderEmail: "client@sovereign-desk.iq",
-      senderCompany: originator || "Registered Trading Entity",
-      recipientName: beneficiary || "Chinese Industrial Counterparty",
-      recipientIdentifier: `CIPS-SH-${Math.floor(1e5 + Math.random() * 9e5)}`,
-      purpose: notes || "Direct bilateral settlement invoice",
-      settlementMethod: "CIPS Direct Bilateral Clearing Conduit",
-      settlementTxHash: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
-      verificationCode: `AUTH-CBI-${Math.floor(1e3 + Math.random() * 9e3)}-VALID`,
-      settledAt: (/* @__PURE__ */ new Date()).toISOString(),
+      refNumber,
+      status: "SETTLED",
+      amountSource: parsedAmount,
+      currencySource: sourceCurrency || "IQD",
+      amountTarget: Math.round(calculatedTarget * 100) / 100,
+      currencyTarget: targetCurrency || "CNY",
+      clearingRail: "CIPS Direct Bilateral Clearing Conduit",
+      feeSavingsUSD: Math.round(feeSavedUSD),
+      feePercentage: 0.12,
+      originatorEntity: originator || "Registered Trading Entity",
+      beneficiaryEntity: beneficiary || "Chinese Industrial Counterparty",
+      cbiApprovalCode: `CBI-FX-2026-${Math.floor(1e3 + Math.random() * 9e3)}`,
+      pbocApprovalCode: `PBOC-SH-2026-${Math.floor(1e3 + Math.random() * 9e3)}`,
+      txHash: `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`,
       createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-      updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      timeline: [
-        { stage: "SUBMISSION", title: "Order Submitted via ICA Settlement Gateway", timestamp: (/* @__PURE__ */ new Date()).toLocaleTimeString(), completed: true, details: "Invoice submitted." },
-        { stage: "FX_PARITY", title: "FX Rate Guaranteed by PBOC-CBI Swap Facility", timestamp: (/* @__PURE__ */ new Date()).toLocaleTimeString(), completed: true, details: "Parity protocol active." },
-        { stage: "SETTLED", title: "CIPS Dual Settlement Confirmed", timestamp: (/* @__PURE__ */ new Date()).toLocaleTimeString(), completed: true, details: "Cryptographic receipt generated." }
+      settledAt: (/* @__PURE__ */ new Date()).toISOString(),
+      notes: notes || "Direct bilateral settlement invoice",
+      auditTrail: [
+        { step: "Order Submitted via ICA Settlement Gateway", time: (/* @__PURE__ */ new Date()).toLocaleTimeString(), status: "COMPLETED" },
+        { step: "FX Rate Guaranteed by PBOC-CBI Swap Facility", time: (/* @__PURE__ */ new Date()).toLocaleTimeString(), status: "COMPLETED" },
+        { step: "CIPS Dual Settlement Confirmed", time: (/* @__PURE__ */ new Date()).toLocaleTimeString(), status: "COMPLETED" }
       ]
     };
-    const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-    orders.unshift(newOrder);
-    writeJsonFile2(ORDERS_FILE, orders);
+    simulatedSettlementOrders.set(refNumber, newOrder);
     return res.status(201).json({
       success: true,
       message: "Settlement executed successfully through sovereign clearing rail.",
@@ -10024,403 +9394,24 @@ settlementRouter.post("/gateway/checkout", async (req, res) => {
     return res.status(500).json({ error: "Settlement execution failed" });
   }
 });
-var DEFAULT_TRACKER_STAGES = [
-  { id: 1, name: { en: "Inquiry Received", ar: "\u062A\u0645 \u0627\u0633\u062A\u0644\u0627\u0645 \u0637\u0644\u0628 \u0627\u0644\u062A\u0633\u0648\u064A\u0629", zh: "\u5DF2\u63A5\u6536\u7ED3\u7B97\u7533\u8BF7", ckb: "\u062F\u0627\u0648\u0627\u06A9\u0627\u0631\u06CC \u0648\u06D5\u0631\u06AF\u06CC\u0631\u0627\u0648\u06D5" }, description: { en: "Trade contract recorded on sovereign ledger.", ar: "\u062A\u0633\u062C\u064A\u0644 \u0627\u0644\u0639\u0642\u062F \u0627\u0644\u062A\u062C\u0627\u0631\u064A \u0641\u064A \u0627\u0644\u0633\u062C\u0644 \u0627\u0644\u0633\u064A\u0627\u062F\u064A.", zh: "\u8D38\u6613\u5408\u540C\u5F55\u5165\u53CC\u8FB9\u4E3B\u6743\u6E05\u7B97\u7CFB\u7EDF\u3002", ckb: "\u06AF\u0631\u06CE\u0628\u06D5\u0633\u062A\u06CC \u0628\u0627\u0632\u0631\u06AF\u0627\u0646\u06CC \u062A\u06C6\u0645\u0627\u0631\u06A9\u0631\u0627." }, status: "completed" },
-  { id: 2, name: { en: "KYC & Compliance Review", ar: "\u0641\u062D\u0635 \u0627\u0644\u0627\u0645\u062A\u062B\u0627\u0644 \u0648\u0627\u0639\u0631\u0641 \u0639\u0645\u064A\u0644\u0643", zh: "KYC\u4E0E\u5408\u89C4\u53CC\u5411\u6838\u9A8C", ckb: "\u0648\u0631\u062F\u0628\u06CC\u0646\u06CC \u067E\u0627\u0628\u06D5\u0646\u062F\u0628\u0648\u0648\u0646 \u0648 KYC" }, description: { en: "Dual AML screening under Iraqi Law 39 and PBoC regulations.", ar: "\u0641\u062D\u0635 \u0627\u0644\u062D\u0638\u0631 \u0648\u063A\u0633\u0644 \u0627\u0644\u0623\u0645\u0648\u0627\u0644 \u0648\u0627\u0644\u0642\u0648\u0627\u0646\u064A\u0646 \u0627\u0644\u0645\u0635\u0631\u0641\u064A\u0629.", zh: "\u53CC\u5411\u53CD\u6D17\u94B1\u4E0E\u76D1\u7BA1\u540D\u5355\u6838\u9A8C\u5B8C\u6BD5\u3002", ckb: "\u067E\u0634\u06A9\u0646\u06CC\u0646\u06CC \u062F\u0698\u06D5 \u0633\u067E\u06CC\u06A9\u0631\u062F\u0646\u06D5\u0648\u06D5\u06CC \u067E\u0627\u0631\u06D5." }, status: "completed" },
-  { id: 3, name: { en: "Documentation Verification", ar: "\u062A\u062F\u0642\u064A\u0642 \u0627\u0644\u0648\u062B\u0627\u0626\u0642 \u0648\u0627\u0644\u0641\u0648\u0627\u062A\u064A\u0631", zh: "\u5355\u8BC1\u5BA1\u6838\u4E0E\u62A5\u5173\u6279\u6587\u6BD4\u5BF9", ckb: "\u067E\u0634\u06A9\u0646\u06CC\u0646\u06CC \u0628\u06D5\u06B5\u06AF\u06D5\u0646\u0627\u0645\u06D5\u06A9\u0627\u0646" }, description: { en: "Commercial invoice, Bill of Lading, and customs declarations validated.", ar: "\u062A\u062F\u0642\u064A\u0642 \u0627\u0644\u0641\u0627\u062A\u0648\u0631\u0629 \u0648\u0628\u0648\u0644\u064A\u0635\u0629 \u0627\u0644\u0634\u062D\u0646 \u0627\u0644\u062C\u0645\u0631\u0643\u064A\u0629.", zh: "\u53D1\u7968\u4E0E\u62A5\u5173\u539F\u4EA7\u5730\u5355\u8BC1\u6BD4\u5BF9\u5B8C\u6BD5\u3002", ckb: "\u0641\u0627\u06A9\u062A\u06C6\u0631 \u0648 \u0628\u06D5\u06CC\u0627\u0646\u0646\u0627\u0645\u06D5 \u067E\u0634\u062A\u0695\u0627\u0633\u062A\u06A9\u0631\u0627\u0646\u06D5\u0648\u06D5." }, status: "completed" },
-  { id: 4, name: { en: "Banking Instruction Prepared", ar: "\u0625\u0639\u062F\u0627\u062F \u0627\u0644\u062A\u0639\u0644\u064A\u0645\u0627\u062A \u0627\u0644\u0645\u0635\u0631\u0641\u064A\u0629", zh: "\u5F00\u7ACB\u53CC\u8FB9\u672C\u5E01\u6E05\u7B97\u6307\u4EE4", ckb: "\u0626\u0627\u0645\u0627\u062F\u06D5\u06A9\u0631\u062F\u0646\u06CC \u0641\u06D5\u0631\u0645\u0627\u0646\u06CC \u0628\u0627\u0646\u06A9\u06CC" }, description: { en: "Cryptographic settlement ticket generated with locked exchange rate.", ar: "\u062A\u0648\u0644\u064A\u062F \u0623\u0645\u0631 \u0627\u0644\u062A\u062D\u0648\u064A\u0644 \u0648\u062A\u062B\u0628\u064A\u062A \u0633\u0639\u0631 \u0627\u0644\u0635\u0631\u0641.", zh: "\u9501\u5B9A\u53CC\u8FB9\u53C2\u8003\u6C47\u7387\u5E76\u751F\u6210ISO 20022\u6307\u4EE4\u3002", ckb: "\u062A\u06C6\u0645\u0627\u0631\u06A9\u0631\u062F\u0646\u06CC \u0641\u06D5\u0631\u0645\u0627\u0646\u06CC \u067E\u0627\u0631\u06D5\u062F\u0627\u0646." }, status: "in_progress" },
-  { id: 5, name: { en: "Transmitted to Banking Partner", ar: "\u0627\u0644\u0625\u0631\u0633\u0627\u0644 \u0644\u0644\u0645\u0635\u0631\u0641 \u0627\u0644\u0634\u0631\u064A\u0643", zh: "\u6307\u4EE4\u62A5\u6587\u4F20\u8F93\u81F3\u6E05\u7B97\u884C", ckb: "\u0646\u06CE\u0631\u062F\u0631\u0627 \u0628\u06C6 \u0628\u0627\u0646\u06A9\u06CC \u0647\u0627\u0648\u0628\u06D5\u0634" }, description: { en: "Dispatched via host-to-host channel to CBI designated settlement bank.", ar: "\u0625\u0631\u0633\u0627\u0644 \u0627\u0644\u062A\u0639\u0644\u064A\u0645\u0627\u062A \u0644\u0644\u0645\u0635\u0631\u0641 \u0627\u0644\u0639\u0631\u0627\u0642\u064A \u0627\u0644\u0645\u0639\u062A\u0645\u062F.", zh: "\u901A\u8FC7\u76F4\u8FDE\u4E13\u7EBF\u5212\u8F6C\u81F3\u592E\u884C\u6307\u5B9A\u6E05\u7B97\u884C\u3002", ckb: "\u0646\u0627\u0631\u062F\u0646\u06CC \u0641\u06D5\u0631\u0645\u0627\u0646 \u0628\u06C6 \u0628\u0627\u0646\u06A9\u06CC \u062F\u06D5\u0633\u062A\u0646\u06CC\u0634\u0627\u0646\u06A9\u0631\u0627\u0648." }, status: "pending" },
-  { id: 6, name: { en: "Settlement in Progress", ar: "\u0627\u0644\u062A\u0633\u0648\u064A\u0629 \u0642\u064A\u062F \u0627\u0644\u062A\u0646\u0641\u064A\u0630", zh: "\u94F6\u884C\u95F4\u76F4\u63A5\u6E05\u7B97\u6267\u884C\u4E2D", ckb: "\u067E\u0627\u06A9\u062A\u0627\u0648\u06CC \u0628\u0627\u0646\u06A9\u06CC \u0644\u06D5 \u06A9\u0627\u0631\u062F\u0627\u06CC\u06D5" }, description: { en: "Interbank ledger matching and direct IQD \u21C4 RMB conversion without USD intermediary.", ar: "\u0645\u0637\u0627\u0628\u0642\u0629 \u0627\u0644\u0642\u064A\u0648\u062F \u0648\u0645\u0642\u0627\u0635\u0629 \u0627\u0644\u062F\u064A\u0646\u0627\u0631 \u0648\u0627\u0644\u064A\u0648\u0627\u0646 \u0627\u0644\u0645\u0628\u0627\u0634\u0631\u0629.", zh: "\u7B2C\u7EB3\u5C14\u501F\u8BB0\u4E0E\u4EBA\u6C11\u5E01\u8D37\u8BB0\u5BF9\u8D26\u6267\u884C\u3002", ckb: "\u0626\u0627\u06B5\u0648\u06AF\u06C6\u0695\u06CC \u0695\u0627\u0633\u062A\u06D5\u0648\u062E\u06C6\u06CC \u0628\u0627\u06B5\u0627\u0646\u0633\u06D5\u06A9\u0627\u0646." }, status: "pending" },
-  { id: 7, name: { en: "Settlement Executed", ar: "\u062A\u0645 \u062A\u0646\u0641\u064A\u0630 \u0627\u0644\u062A\u0633\u0648\u064A\u0629 \u0628\u0646\u062C\u0627\u062D", zh: "\u672C\u5E01\u6E05\u7B97\u8D44\u91D1\u5212\u8F6C\u4EA4\u5272", ckb: "\u067E\u0627\u06A9\u062A\u0627\u0648 \u0628\u06D5 \u0633\u06D5\u0631\u06A9\u06D5\u0648\u062A\u0648\u0648\u06CC\u06CC \u062C\u06CE\u0628\u06D5\u062C\u06CE \u06A9\u0631\u0627" }, description: { en: "Beneficiary account credited in China with full net parity value.", ar: "\u062A\u0645 \u0642\u064A\u062F \u0627\u0644\u0645\u0628\u0644\u063A \u0641\u064A \u062D\u0633\u0627\u0628 \u0627\u0644\u0645\u0633\u062A\u0641\u064A\u062F \u0628\u0643\u0627\u0645\u0644 \u0627\u0644\u0642\u064A\u0645\u0629.", zh: "\u53D7\u6B3E\u4F01\u4E1A\u4E2D\u56FD\u5883\u5185\u8D26\u6237\u5168\u989D\u5230\u8D26\u3002", ckb: "\u067E\u0627\u0631\u06D5\u06A9\u06D5 \u0686\u0648\u0648\u06D5 \u0633\u06D5\u0631 \u0647\u06D5\u0698\u0645\u0627\u0631\u06CC \u0648\u06D5\u0631\u06AF\u0631 \u0644\u06D5 \u0686\u06CC\u0646." }, status: "pending" },
-  { id: 8, name: { en: "Confirmed & Closed", ar: "\u0627\u0644\u0645\u0639\u0627\u0645\u0644\u0629 \u0645\u0624\u0643\u062F\u0629 \u0648\u0645\u063A\u0644\u0642\u0629", zh: "\u5F52\u6863\u5E76\u9881\u53D1\u53CC\u8FB9\u6E05\u7B97\u51ED\u8BC1", ckb: "\u0645\u0627\u0645\u06D5\u06B5\u06D5 \u062A\u06D5\u0648\u0627\u0648 \u0648 \u0626\u06D5\u0631\u0634\u06CC\u0641 \u06A9\u0631\u0627" }, description: { en: "Cryptographic proof issued and filed with Central Bank oversight portal.", ar: "\u0625\u0635\u062F\u0627\u0631 \u0634\u0647\u0627\u062F\u0629 \u0627\u0644\u062A\u0633\u0648\u064A\u0629 \u0627\u0644\u0645\u0634\u0641\u0631\u0629 \u0627\u0644\u0631\u0633\u0645\u064A\u0629.", zh: "\u751F\u6210\u4E3B\u6743\u7EA7\u7535\u5B50\u7ED3\u6C47\u6838\u9500\u51ED\u8BC1\uFF0C\u5168\u6D41\u7A0B\u95ED\u73AF\u3002", ckb: "\u062F\u06D5\u0631\u06A9\u0631\u062F\u0646\u06CC \u0628\u0695\u0648\u0627\u0646\u0627\u0645\u06D5\u06CC \u0626\u06D5\u0644\u06CC\u06A9\u062A\u0631\u06C6\u0646\u06CC \u06A9\u06C6\u062A\u0627\u06CC\u06CC." }, status: "pending" }
-];
-function buildTrackerData(refId) {
-  const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-  const normalized = (refId || "").trim().toUpperCase();
-  const order = orders.find(
-    (o) => o.reference && o.reference.toUpperCase() === normalized || o.id && o.id.toUpperCase() === normalized || o.verificationCode && o.verificationCode.toUpperCase() === normalized
-  );
-  if (order) {
-    let currentStage = 4;
-    if (order.status === "PENDING_SETTLEMENT") currentStage = 2;
-    else if (order.status === "PROCESSING") currentStage = 4;
-    else if (order.status === "CLEARING") currentStage = 6;
-    else if (order.status === "COMPLETED") currentStage = 8;
-    else if (order.status === "REJECTED") currentStage = 2;
-    const stages = DEFAULT_TRACKER_STAGES.map((st) => {
-      if (st.id < currentStage) {
-        return { ...st, status: "completed", timestamp: order.createdAt };
-      } else if (st.id === currentStage) {
-        return { ...st, status: currentStage === 8 ? "completed" : "in_progress", timestamp: order.updatedAt };
-      } else {
-        return { ...st, status: "pending" };
-      }
-    });
-    const record = {
-      referenceId: order.reference,
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-      direction: order.direction || "IQD_TO_RMB",
-      settlementType: order.orderType || "BUSINESS",
-      sourceAmount: order.sourceAmount,
-      sourceCurrency: order.sourceCurrency,
-      targetAmount: order.targetAmount,
-      targetCurrency: order.targetCurrency,
-      exchangeRate: order.exchangeRate,
-      avoidedFees: {
-        usdSpreadAmount: Math.round((order.sourceAmount || 1e6) * 28e-4),
-        intermediaryFee: 8500,
-        correspondentFee: 6200,
-        totalSaved: Math.round((order.sourceAmount || 1e6) * 42e-4) + 14700,
-        savingsPercent: 7.2
-      },
-      payer: {
-        organizationName: order.senderCompany || order.senderName || "Authorized Clearing Client",
-        contactPerson: order.senderName || "Representative",
-        email: order.senderEmail || "client@trade-desk.iq",
-        phone: order.senderPhone || "+964 780 000 0000",
-        country: "Iraq",
-        taxRegNumber: "IQ-TIN-889021"
-      },
-      beneficiary: {
-        name: order.recipientEntity || order.recipientName || "Chinese Industrial Counterparty",
-        country: "China",
-        bankName: order.recipientBankOrBureau || "Bank of China (Direct Clearing Node)",
-        swiftBic: "BKCHCNBJ400",
-        accountNumber: order.recipientIdentifier || "6217 \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 4490"
-      },
-      compliance: {
-        kycStatus: order.status === "REJECTED" ? "rejected" : "verified",
-        cbiApproved: true,
-        pbocApproved: true,
-        cipsTracked: true,
-        sanctionsScreened: true
-      },
-      currentStage,
-      stages,
-      estimatedSettlementDate: order.settledAt || "2026-10-18 16:00 UTC",
-      executingBank: order.settlementMethod || "Trade Bank of Iraq (TBI) \u2022 Direct Yuan Clearing Unit",
-      txHash: order.settlementTxHash || "0x9d4a82c16e78b90124cfa7b301d9e4a8c2019487"
-    };
-    return { success: true, currentStage, stages, record };
-  }
-  const dossiersFile = path5.join(DATA_DIR2, "cise_dossiers.json");
-  if (fs5.existsSync(dossiersFile)) {
-    try {
-      const dossiers = JSON.parse(fs5.readFileSync(dossiersFile, "utf-8"));
-      const dos = dossiers.find((d) => d.code && d.code.toUpperCase() === normalized);
-      if (dos) {
-        let currentStage = 4;
-        if (dos.stage === "COMPLIANCE_REVIEW") currentStage = 2;
-        else if (dos.stage === "INTERBANK_VERIFIED") currentStage = 5;
-        else if (dos.stage === "DISPATCHED_SETTLED") currentStage = 8;
-        const stages = DEFAULT_TRACKER_STAGES.map((st) => {
-          if (st.id < currentStage) {
-            return { ...st, status: "completed", timestamp: dos.submittedAt };
-          } else if (st.id === currentStage) {
-            return { ...st, status: currentStage === 8 ? "completed" : "in_progress", timestamp: (/* @__PURE__ */ new Date()).toISOString() };
-          } else {
-            return { ...st, status: "pending" };
-          }
-        });
-        const record = {
-          referenceId: dos.code,
-          createdAt: dos.submittedAt,
-          updatedAt: dos.submittedAt,
-          direction: "IQD_TO_RMB",
-          settlementType: dos.tier || "SERVICE_DOSSIER",
-          sourceAmount: dos.estimatedFeeIQD || 5043500,
-          sourceCurrency: "IQD",
-          targetAmount: dos.estimatedFeeRMB || 27720,
-          targetCurrency: "RMB",
-          exchangeRate: 181.09,
-          avoidedFees: {
-            usdSpreadAmount: 1400,
-            intermediaryFee: 2500,
-            correspondentFee: 1800,
-            totalSaved: 5700,
-            savingsPercent: 8.5
-          },
-          payer: {
-            organizationName: dos.companyEntity || dos.clientName,
-            contactPerson: dos.clientName,
-            email: dos.applicantEmail,
-            phone: "+964 780 000 0000",
-            country: dos.jurisdiction || "Iraq",
-            taxRegNumber: "IQ-DOSSIER-TIN"
-          },
-          beneficiary: {
-            name: "China-Iraq Strategic Economic (CISE) Directorate",
-            country: "China / Iraq",
-            bankName: "Sovereign Bilateral Clearing Rail",
-            swiftBic: "CIPS-HQ-CLEAR",
-            accountNumber: "CIPS \u2022\u2022\u2022\u2022 \u2022\u2022\u2022\u2022 2026"
-          },
-          compliance: {
-            kycStatus: "verified",
-            cbiApproved: true,
-            pbocApproved: true,
-            cipsTracked: true,
-            sanctionsScreened: true
-          },
-          currentStage,
-          stages,
-          estimatedSettlementDate: "2026-10-18 12:00 UTC",
-          executingBank: dos.serviceName && dos.serviceName.en || "Bilateral Clearing Directorate",
-          txHash: `0x${Array.from({ length: 40 }, () => Math.floor(Math.random() * 16).toString(16)).join("")}`
-        };
-        return { success: true, currentStage, stages, record };
-      }
-    } catch (e) {
-      console.error("Error cross-checking dossiers in tracker:", e);
-    }
-  }
-  return null;
-}
-settlementRouter.get("/tracker/:referenceId", (req, res) => {
-  const { referenceId } = req.params;
-  const data = buildTrackerData(referenceId);
-  if (data) {
-    return res.json(data);
-  }
-  return res.status(404).json({
-    success: false,
-    message: `Reference ${referenceId} not found on sovereign settlement registry.`
-  });
-});
 settlementRouter.get("/orders", async (_req, res) => {
-  const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
   return res.json({
     success: true,
-    count: orders.length,
-    orders
+    count: simulatedSettlementOrders.size,
+    orders: Array.from(simulatedSettlementOrders.values())
   });
 });
 function registerSettlementRoutes(app, editorOrAdminMiddleware, adminMiddleware) {
   app.use("/api/settlement", settlementRouter);
-  app.get("/api/public/payments/rates", (_req, res) => {
-    try {
-      const data = readJsonFile2(RATES_FILE, INITIAL_PAYMENT_RATES);
-      return res.json({ success: true, data });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to read payment rates" });
-    }
-  });
-  app.post("/api/public/payments/quote", (req, res) => {
-    try {
-      const { direction = "IQD_TO_ECNY", orderType = "BUSINESS", sourceAmount = 1e6 } = req.body;
-      const rates = readJsonFile2(RATES_FILE, INITIAL_PAYMENT_RATES);
-      const isRetail = orderType === "RETAIL";
-      const feePercent = isRetail ? rates.retailFeePercent : rates.businessFeePercent;
-      const baseRate = rates.baseRate;
-      const effectiveRate = direction === "IQD_TO_ECNY" ? +(1 / baseRate).toFixed(6) : baseRate;
-      const feeAmount = Math.round(Number(sourceAmount) * (feePercent / 100));
-      const netSource = Math.max(0, Number(sourceAmount) - feeAmount);
-      const targetAmount = +(netSource * effectiveRate).toFixed(2);
-      return res.json({
+  if (adminMiddleware) {
+    app.get("/api/hub/settlement/orders", adminMiddleware, (_req, res) => {
+      res.json({
         success: true,
-        direction,
-        orderType,
-        sourceCurrency: direction === "IQD_TO_ECNY" ? "IQD" : "CNY",
-        targetCurrency: direction === "IQD_TO_ECNY" ? "CNY" : "IQD",
-        sourceAmount: Number(sourceAmount),
-        effectiveRate,
-        feePercent,
-        feeAmount,
-        targetAmount,
-        quoteExpiresInSeconds: 300,
-        quoteHash: `QUOTE-${Date.now()}-${Math.floor(Math.random() * 1e4)}`
+        count: simulatedSettlementOrders.size,
+        orders: Array.from(simulatedSettlementOrders.values())
       });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to calculate quote" });
-    }
-  });
-  app.get("/api/public/payments/orders/:referenceId", (req, res) => {
-    const { referenceId } = req.params;
-    const data = buildTrackerData(referenceId);
-    if (data) {
-      return res.json(data);
-    }
-    return res.status(404).json({ success: false, message: `Order ${referenceId} not found.` });
-  });
-  const authOrAdmin = adminMiddleware || editorOrAdminMiddleware || ((_req, _res, next) => next());
-  app.get("/api/hub/payments/orders", authOrAdmin, (_req, res) => {
-    try {
-      const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-      const telemetry = calculateTelemetry(orders);
-      return res.json({
-        success: true,
-        orders,
-        telemetry
-      });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to fetch hub payment orders" });
-    }
-  });
-  app.get("/api/hub/settlement/orders", authOrAdmin, (_req, res) => {
-    try {
-      const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-      return res.json({
-        success: true,
-        count: orders.length,
-        orders
-      });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to fetch settlement orders" });
-    }
-  });
-  app.get("/api/hub/payments/orders/:id", authOrAdmin, (req, res) => {
-    const { id } = req.params;
-    const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-    const order = orders.find((o) => o.id === id || o.reference === id);
-    if (!order) {
-      return res.status(404).json({ error: `Order ${id} not found.` });
-    }
-    return res.json({ success: true, order });
-  });
-  app.post("/api/hub/payments/orders", authOrAdmin, (req, res) => {
-    try {
-      const body = req.body;
-      const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-      const id = body.id || `ord-${Date.now()}`;
-      const reference = body.reference || `CIPS-2026-IQCN-${Math.floor(1e3 + Math.random() * 9e3)}`;
-      const newOrder = {
-        id,
-        reference,
-        orderType: body.orderType || "BUSINESS",
-        direction: body.direction || "IQD_TO_ECNY",
-        sourceCurrency: body.sourceCurrency || "IQD",
-        targetCurrency: body.targetCurrency || "CNY",
-        sourceAmount: Number(body.sourceAmount) || 0,
-        targetAmount: Number(body.targetAmount) || 0,
-        exchangeRate: Number(body.exchangeRate) || 181.09,
-        feeAmount: Number(body.feeAmount) || 0,
-        feePercent: Number(body.feePercent) || 0.12,
-        status: body.status || "PENDING_SETTLEMENT",
-        senderName: body.senderName || "Anonymous",
-        senderEmail: body.senderEmail || "",
-        senderPhone: body.senderPhone || "",
-        senderCompany: body.senderCompany || "",
-        recipientName: body.recipientName || "",
-        recipientIdentifier: body.recipientIdentifier || "",
-        recipientEntity: body.recipientEntity || "",
-        recipientBankOrBureau: body.recipientBankOrBureau || "CIPS Clearing Node",
-        purpose: body.purpose || "Trade invoice settlement",
-        settlementMethod: body.settlementMethod || "CIPS Direct Bilateral Clearing Conduit",
-        commercialInvoiceRef: body.commercialInvoiceRef || "",
-        contractValueUsd: body.contractValueUsd || 0,
-        adminNotes: body.adminNotes || "",
-        complianceNotes: body.complianceNotes || "",
-        createdAt: (/* @__PURE__ */ new Date()).toISOString(),
-        updatedAt: (/* @__PURE__ */ new Date()).toISOString(),
-        timeline: [
-          { stage: "CREATED", title: "Order Registered via Hub Console", timestamp: (/* @__PURE__ */ new Date()).toISOString(), completed: true, details: "Order manually recorded by administrator." }
-        ]
-      };
-      orders.unshift(newOrder);
-      writeJsonFile2(ORDERS_FILE, orders);
-      return res.status(201).json({ success: true, order: newOrder });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to create payment order" });
-    }
-  });
-  app.put("/api/hub/payments/orders/:orderId/status", authOrAdmin, (req, res) => {
-    try {
-      const { orderId } = req.params;
-      const { status, adminNotes, complianceNotes, rejectionReason } = req.body;
-      const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-      const index = orders.findIndex((o) => o.id === orderId || o.reference === orderId);
-      if (index === -1) {
-        return res.status(404).json({ error: `Order ${orderId} not found.` });
-      }
-      if (status) orders[index].status = status;
-      if (adminNotes !== void 0) orders[index].adminNotes = adminNotes;
-      if (complianceNotes !== void 0) orders[index].complianceNotes = complianceNotes;
-      if (rejectionReason !== void 0) orders[index].rejectionReason = rejectionReason;
-      orders[index].updatedAt = (/* @__PURE__ */ new Date()).toISOString();
-      if (status === "COMPLETED" && !orders[index].settledAt) {
-        orders[index].settledAt = (/* @__PURE__ */ new Date()).toISOString();
-      }
-      if (orders[index].timeline) {
-        orders[index].timeline.push({
-          stage: status,
-          title: `Status Changed to ${status}`,
-          timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-          completed: true,
-          details: adminNotes || complianceNotes || rejectionReason || "Status updated in CISE Command Hub"
-        });
-      }
-      writeJsonFile2(ORDERS_FILE, orders);
-      return res.json({ success: true, order: orders[index] });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to update order status" });
-    }
-  });
-  app.delete("/api/hub/payments/orders/:orderId", authOrAdmin, (req, res) => {
-    try {
-      const { orderId } = req.params;
-      const orders = readJsonFile2(ORDERS_FILE, INITIAL_PAYMENT_ORDERS);
-      const filtered = orders.filter((o) => o.id !== orderId && o.reference !== orderId);
-      if (filtered.length === orders.length) {
-        return res.status(404).json({ error: `Order ${orderId} not found.` });
-      }
-      writeJsonFile2(ORDERS_FILE, filtered);
-      return res.json({ success: true, message: `Order ${orderId} deleted successfully.` });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to delete order" });
-    }
-  });
-  app.get("/api/hub/payments/rates", authOrAdmin, (_req, res) => {
-    try {
-      const data = readJsonFile2(RATES_FILE, INITIAL_PAYMENT_RATES);
-      return res.json({ success: true, data });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to read payment rates" });
-    }
-  });
-  app.patch("/api/hub/payments/rates", authOrAdmin, (req, res) => {
-    try {
-      const currentRates = readJsonFile2(RATES_FILE, INITIAL_PAYMENT_RATES);
-      const body = req.body;
-      const updated = {
-        ...currentRates,
-        ...body,
-        updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      writeJsonFile2(RATES_FILE, updated);
-      return res.json({ success: true, data: updated });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to update exchange rates" });
-    }
-  });
-  app.post("/api/hub/payments/rates/tick", authOrAdmin, (_req, res) => {
-    try {
-      const currentRates = readJsonFile2(RATES_FILE, INITIAL_PAYMENT_RATES);
-      const delta = (Math.random() - 0.48) * 0.08;
-      const newBase = Math.round((currentRates.baseRate + delta) * 100) / 100;
-      const newBid = Math.round((newBase - 0.24) * 100) / 100;
-      const newAsk = Math.round((newBase + 0.24) * 100) / 100;
-      const history = currentRates.trendHistory || [];
-      history.push({
-        time: (/* @__PURE__ */ new Date()).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-        rate: newBase,
-        volume: Math.floor(5e6 + Math.random() * 8e6)
-      });
-      if (history.length > 15) history.shift();
-      const updated = {
-        ...currentRates,
-        baseRate: newBase,
-        bidRate: newBid,
-        askRate: newAsk,
-        trendHistory: history,
-        updatedAt: (/* @__PURE__ */ new Date()).toISOString()
-      };
-      writeJsonFile2(RATES_FILE, updated);
-      return res.json({ success: true, rate: updated });
-    } catch (e) {
-      return res.status(500).json({ error: "Failed to tick exchange rates" });
-    }
-  });
+    });
+  }
 }
 
 // server/routes/omniRouteRoutes.ts
@@ -10669,35 +9660,23 @@ async function runStartupSeeders() {
   try {
     await ensureCiseCommandHubAccount();
     const articleCount = await prisma.article.count();
-    if (articleCount === 0) {
-      console.log("\u{1F331} Seeding initial news and articles...");
-      await autoSeedMoreNews();
+    if (articleCount > 0) {
+      console.log(`Database already initialized (${articleCount} articles present). Startup seeders bypassed for instant launch.`);
+      return;
     }
-    const marketCount = await prisma.marketData.count();
-    if (marketCount === 0) {
-      await seedMarketData();
-    }
-    const bookCount = await prisma.book.count();
-    if (bookCount === 0) await seedBooks();
-    const bricsCount = await prisma.bricsTopic.count();
-    if (bricsCount === 0) await seedBricsTopics();
-    const chineseProductCount = await prisma.chineseProduct.count();
-    if (chineseProductCount === 0) await seedChineseProducts();
-    const businessOpportunityCount = await prisma.businessOpportunity.count();
-    if (businessOpportunityCount === 0) await seedBusinessOpportunities();
-    const pageCount = await prisma.page.count();
-    const sectionCount = await prisma.pageSection.count();
-    if (pageCount === 0 || sectionCount === 0) {
-      console.log("\u{1F331} Seeding composition engine (Home Page & 15 Canonical Sections)...");
-      await seedCompositionEngine();
-    }
-    const footerCount = await prisma.footerConfig.count();
-    if (footerCount === 0) await seedFooterData();
-    const cisePillarCount = await prisma.cisePillar.count();
-    if (cisePillarCount === 0) await seedInstituteData();
+    console.log("\u{1F331} Starting initial background database seeders...");
+    await autoSeedMoreNews();
+    await seedMarketData();
+    await seedBooks();
+    await seedBricsTopics();
     await seedHistoricalFigures();
+    await seedChineseProducts();
+    await seedBusinessOpportunities();
     await seedCulturalExchange();
-    console.log("\u2705 All background database seeders verified and updated.");
+    await seedCompositionEngine();
+    await seedFooterData();
+    await seedInstituteData();
+    console.log("\u2705 All background database seeders completed successfully.");
   } catch (err) {
     console.error("\u26A0\uFE0F Error running background seeders:", err);
   }
@@ -10720,8 +9699,8 @@ async function startServer() {
   app.get("/api/build-info", (req, res) => {
     res.setHeader("Cache-Control", "no-store");
     try {
-      const infoPath = path6.join(process.cwd(), "build-info.json");
-      if (!fs6.existsSync(infoPath)) {
+      const infoPath = path5.join(process.cwd(), "build-info.json");
+      if (!fs5.existsSync(infoPath)) {
         const fallbackInfo = {
           commitHash: "9f81bc3c9f81bc3c9f81bc3c9f81bc3c9f81bc3c",
           commitShortHash: "9f81bc3",
@@ -10733,9 +9712,9 @@ async function startServer() {
           nodeVersion: process.version,
           nextVersion: "15.x"
         };
-        fs6.writeFileSync(infoPath, JSON.stringify(fallbackInfo, null, 2));
+        fs5.writeFileSync(infoPath, JSON.stringify(fallbackInfo, null, 2));
       }
-      const data = JSON.parse(fs6.readFileSync(infoPath, "utf-8"));
+      const data = JSON.parse(fs5.readFileSync(infoPath, "utf-8"));
       return res.json({ ...data, nextVersion: "15.x" });
     } catch (e) {
       res.status(500).json({ error: "Failed to read build info", details: String(e) });
@@ -10879,7 +9858,7 @@ async function startServer() {
   const editorOrAdminMiddleware = async (req, res, next) => {
     authMiddleware(req, res, () => {
       const role = (req.user?.role || "").toUpperCase();
-      if (!["ADMIN", "SUPERADMIN", "SUPER_ADMIN", "EDITOR", "AUTHOR"].includes(role)) {
+      if (!["ADMIN", "SUPERADMIN", "SUPER_ADMIN", "EDITOR"].includes(role)) {
         return res.status(403).json({ error: "Forbidden: Elevated editorial or administrator privileges required" });
       }
       next();
@@ -14634,8 +13613,8 @@ async function startServer() {
       error: err.message || "Internal Server Error"
     });
   });
-  app.use("/src/assets/images", express.static(path6.join(process.cwd(), "src/assets/images")));
-  app.use("/assets/images", express.static(path6.join(process.cwd(), "src/assets/images")));
+  app.use("/src/assets/images", express.static(path5.join(process.cwd(), "src/assets/images")));
+  app.use("/assets/images", express.static(path5.join(process.cwd(), "src/assets/images")));
   const isProduction = process.env.NODE_ENV === "production";
   const forceStatic = process.env.SERVE_STATIC === "true";
   if (!isProduction && !forceStatic) {
@@ -14651,24 +13630,24 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    let distPath = path6.join(process.cwd(), "dist");
-    if (!fs6.existsSync(path6.join(distPath, "index.html")) && fs6.existsSync(path6.join(process.cwd(), "build", "index.html"))) {
-      distPath = path6.join(process.cwd(), "build");
+    let distPath = path5.join(process.cwd(), "dist");
+    if (!fs5.existsSync(path5.join(distPath, "index.html")) && fs5.existsSync(path5.join(process.cwd(), "build", "index.html"))) {
+      distPath = path5.join(process.cwd(), "build");
     }
     app.use("/assets", (req, res, next) => {
       const requestedFile = req.path.replace(/^\//, "");
-      const fullPath = path6.join(distPath, "assets", requestedFile);
-      if (fs6.existsSync(fullPath)) {
+      const fullPath = path5.join(distPath, "assets", requestedFile);
+      if (fs5.existsSync(fullPath)) {
         return next();
       }
       const match = requestedFile.match(/^([a-zA-Z0-9_\-]+?)-[a-zA-Z0-9_\-]{4,16}\.(js|css)$/);
       if (match) {
         const prefix = match[1];
         const ext = match[2];
-        const assetsDir = path6.join(distPath, "assets");
-        if (fs6.existsSync(assetsDir)) {
+        const assetsDir = path5.join(distPath, "assets");
+        if (fs5.existsSync(assetsDir)) {
           try {
-            const files = fs6.readdirSync(assetsDir);
+            const files = fs5.readdirSync(assetsDir);
             const found = files.find((f) => f.startsWith(`${prefix}-`) && f.endsWith(`.${ext}`));
             if (found) {
               console.log(`[ChunkFallback] Redirecting stale chunk request ${requestedFile} -> ${found}`);
@@ -14695,12 +13674,12 @@ async function startServer() {
       if (req.path.match(/\.(css|js|woff2|png|jpg|jpeg|svg|ico|webp|json|map)$/)) {
         return res.status(404).end();
       }
-      let indexPath = path6.join(distPath, "index.html");
-      if (!fs6.existsSync(indexPath)) {
-        if (fs6.existsSync(path6.join(process.cwd(), "build", "index.html"))) {
-          indexPath = path6.join(process.cwd(), "build", "index.html");
-        } else if (fs6.existsSync(path6.join(process.cwd(), "index.html"))) {
-          indexPath = path6.join(process.cwd(), "index.html");
+      let indexPath = path5.join(distPath, "index.html");
+      if (!fs5.existsSync(indexPath)) {
+        if (fs5.existsSync(path5.join(process.cwd(), "build", "index.html"))) {
+          indexPath = path5.join(process.cwd(), "build", "index.html");
+        } else if (fs5.existsSync(path5.join(process.cwd(), "index.html"))) {
+          indexPath = path5.join(process.cwd(), "index.html");
         }
       }
       res.sendFile(indexPath, (err) => {
@@ -14716,9 +13695,9 @@ async function startServer() {
   const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
     console.log(`Server is READY and accepting connections.`);
-    setImmediate(() => {
+    setTimeout(() => {
       runStartupSeeders().catch((e) => console.error("Startup seeders background error:", e));
-    });
+    }, 5e3);
   });
   server.on("error", (err) => {
     console.error("Server startup error:", err);
